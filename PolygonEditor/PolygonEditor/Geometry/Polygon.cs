@@ -140,6 +140,9 @@ namespace PolygonEditor.Geometry
                         case VerticalEdgeConstraints _:
                             DrawConstraintIcon(edge.Start, edge.End, true);
                             break;
+                        case DistanceConstraint _:
+                            DrawLengthLabel(edge);
+                            break;
                     }
                 }
             }
@@ -265,6 +268,30 @@ namespace PolygonEditor.Geometry
             };
 
             return copiedPolygon;
+        }
+        public void DrawLengthLabel(Edge edge)
+        {
+            var start = edge.Start.point;
+            var end = edge.End.point;
+
+            // Calculate the midpoint
+            var midX = (start.X + end.X) / 2;
+            var midY = (start.Y + end.Y) / 2;
+
+            // Create a TextBlock to display the length
+            TextBlock lengthLabel = new TextBlock
+            {
+                Text = edge.Length.ToString(),  // Display the length
+                Foreground = Brushes.Black,
+                FontSize = 12
+            };
+
+            // Set position of the TextBlock
+            Canvas.SetLeft(lengthLabel, midX);
+            Canvas.SetTop(lengthLabel, midY);
+
+            // Add the TextBlock to the canvas
+            drawingCanvas.Children.Add(lengthLabel);
         }
     }
 }

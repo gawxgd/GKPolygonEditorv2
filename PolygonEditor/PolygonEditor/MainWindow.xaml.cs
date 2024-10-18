@@ -79,7 +79,7 @@ namespace PolygonEditor
                     MessageBox.Show($"The edge already have verticalEdgeConstraints ");
             }
         }
-
+        
         private void MakeVertical_Click(object sender, RoutedEventArgs e)
         {
             if (polygon.selectedEdge != null)
@@ -408,7 +408,54 @@ namespace PolygonEditor
                 polygon.DrawPolygon();
             }
         }
-        
+        private void SetDistance_Click(object sender, RoutedEventArgs e)
+        {
+            if (polygon.selectedEdge != null)
+            {
+                if (polygon.selectedEdge.Constraints.CheckIfEdgeHasConstraints() == false)
+                {
+                    var start = polygon.selectedEdge.Start;
+                    var end = polygon.selectedEdge.End;
+                    Edge startEdge = start.GetOtherEdge(polygon.selectedEdge);
+                    Edge endEdge = end.GetOtherEdge(polygon.selectedEdge);
+                    if (startEdge == null || endEdge == null)
+                    {
+                        foreach (var edge in polygon.edges)
+                        {
+                            Debug.WriteLine($"{edge.Start.InEdge.Start.point} {edge.Start.InEdge.End.point}");
+                        }
+                    }
+                    if (startEdge.Constraints is DistanceConstraint || endEdge.Constraints is DistanceConstraint)
+                    {
+                        MessageBox.Show("The neighboring edges already have horizontal constraints.");
+                        return;
+                    }
+                    // Prompt the user for a distance value
+                    string input = Microsoft.VisualBasic.Interaction.InputBox("Enter Distance:", "Set Distance", "0");
+
+                    if (float.TryParse(input, out float distance))
+                    {
+                        if (polygon.selectedEdge != null)
+                        {
+                            polygon.selectedEdge.Length = distance;
+                            polygon.selectedEdge.Constraints = new DistanceConstraint();
+                            polygon.selectedEdge.Constraints.PreserveConstraint(polygon.selectedEdge, polygon.selectedEdge.Start, polygon);
+                            polygon.DrawPolygon();
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show("Invalid distance value. Please enter a numeric value.");
+                    }
+
+                }
+                else
+                    MessageBox.Show($"The edge already have verticalEdgeConstraints ");
+            }
+            
+        }
+
+
 
     }
 }

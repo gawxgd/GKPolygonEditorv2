@@ -11,6 +11,7 @@ namespace PolygonEditor.Geometry
         public Vertex Start { get; set; }
         public Vertex End { get; set; }
         public EdgeConstraints Constraints { get; set; }
+        public float? Length;
         public Edge(Vertex start, Vertex end, EdgeConstraints constraints = null )
         {
             Start = start;
