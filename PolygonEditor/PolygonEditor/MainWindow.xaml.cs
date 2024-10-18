@@ -123,7 +123,7 @@ namespace PolygonEditor
 
         private void AddVertex_Click(object sender, RoutedEventArgs e)
         {
-
+            polygon.AddVertex();
         }
         private void drawingMode_MouseLeftButtonDown(System.Drawing.Point mousePosition)
         {
@@ -277,7 +277,7 @@ namespace PolygonEditor
         }
         private void RemoveVertex_Click(object sender, RoutedEventArgs e)
         {
-
+            polygon.RemoveVertex();
         }
 
         private void TogglePolygonDragging_Click(object sender, RoutedEventArgs e)

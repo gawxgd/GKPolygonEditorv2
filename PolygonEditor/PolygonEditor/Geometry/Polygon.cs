@@ -150,6 +150,54 @@ namespace PolygonEditor.Geometry
             edges.Clear();
             vertices.Clear();
         }
+        public void AddVertex()
+        {
+            if (selectedEdge != null)
+            {
+                Vertex start = selectedEdge.Start;
+                Vertex end = selectedEdge.End;
+                int startIndex = vertices.IndexOf(start);
+                int endIndex = vertices.IndexOf(end);
+                int index = vertices.IndexOf(start);
+                int edgeIndex = edges.IndexOf(selectedEdge);
+                edges.RemoveAt(edgeIndex);
+
+                Vertex newVertex = new Vertex((start.X + end.X) / 2, (start.Y + end.Y) / 2);
+                var inEdge = new Edge(start, newVertex);
+                var outEdge = new Edge(newVertex, end);
+                edges.Add(inEdge);
+                edges.Add(outEdge);
+                newVertex.InEdge = inEdge;
+                newVertex.OutEdge = outEdge;
+                vertices[startIndex].OutEdge = inEdge;
+                vertices[endIndex].InEdge = outEdge;
+                vertices.Insert(index + 1, newVertex);
+                selectedEdge = null;
+                DrawPolygon();
+            }
+        }
+        public void RemoveVertex()
+        {
+            if(selectedVertex != null)
+            {
+                Vertex start = selectedVertex.InEdge.Start;
+                Vertex end = selectedVertex.OutEdge.End;
+                int startIndex = vertices.IndexOf(start);
+                int endIndex = vertices.IndexOf(end);
+                int index = vertices.IndexOf(selectedVertex);
+                Edge inEdge = selectedVertex.InEdge;
+                Edge outEdge = selectedVertex.OutEdge;
+                edges.Remove(inEdge);
+                edges.Remove(outEdge);
+                Edge newEdge = new Edge(start, end);
+                edges.Add(newEdge);
+                vertices[startIndex].OutEdge = newEdge;
+                vertices[endIndex].InEdge = newEdge;
+                vertices.RemoveAt(index);
+                DrawPolygon();
+
+            }
+        }
         private void DrawConstraintIcon(Vertex start, Vertex end, bool rotateArrow = false)
         {
             // Calculate the middle point of the line
