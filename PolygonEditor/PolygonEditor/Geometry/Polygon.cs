@@ -152,6 +152,9 @@ namespace PolygonEditor.Geometry
             drawingCanvas.Children.Clear();
             edges.Clear();
             vertices.Clear();
+            selectedEdge = null;
+            movingVertex = null;
+            selectedVertex = null;
         }
         public void AddVertex()
         {

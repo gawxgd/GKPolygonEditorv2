@@ -442,6 +442,7 @@ namespace PolygonEditor
                             polygon.selectedEdge.Length = distance;
                             polygon.selectedEdge.Constraints = new DistanceConstraint();
                             polygon.selectedEdge.Constraints.PreserveConstraint(polygon.selectedEdge, polygon.selectedEdge.Start, polygon);
+                            EnsureConstraints(polygon.selectedEdge.Start);
                             polygon.DrawPolygon();
                         }
                     }
