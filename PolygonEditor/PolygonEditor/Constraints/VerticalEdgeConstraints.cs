@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace PolygonEditor.Constraints
 {
@@ -16,7 +17,11 @@ namespace PolygonEditor.Constraints
         public override bool PreserveConstraint(Edge edge, Vertex current, Polygon polygon)
         {
             var secondVertex = edge.GetOtherEnd(current);
-            if (secondVertex == null) return false;
+            if (secondVertex == null)
+            {
+                MessageBox.Show("secondVertex null");
+                return false;
+            }
             polygon.ChangeVertexPosition(secondVertex, new Vertex(current.X, secondVertex.Y));
             return true;
         }

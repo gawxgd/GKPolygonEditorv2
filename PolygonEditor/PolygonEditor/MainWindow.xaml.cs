@@ -296,12 +296,17 @@ namespace PolygonEditor
         {
 
             Vertex current = vertex;
+            bool isAllEdgesPositionConstraint = polygon.edges.All(edge => edge.Constraints is HorizontalEdgeConstraints || edge.Constraints is VerticalEdgeConstraints);
 
             while (true)
             {
                 var edge = direction(current);
 
-                if (edge == null) return false;
+                if (edge == null)
+                {
+                    MessageBox.Show("error null edge");
+                    return false;
+                }
 
                 var other = edge.GetOtherEnd(current);
 
@@ -320,7 +325,7 @@ namespace PolygonEditor
                 //{
                 if (edge.Constraints.CheckIfEdgeHasConstraints())
                 {
-                    if (other == vertex) return false;
+                    if (other == vertex) return !isAllEdgesPositionConstraint;
 
                     edge.Constraints.PreserveConstraint(edge,current,polygon);
                     current = other;

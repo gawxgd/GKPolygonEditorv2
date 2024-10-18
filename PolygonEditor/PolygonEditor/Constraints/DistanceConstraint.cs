@@ -6,6 +6,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace PolygonEditor.Constraints
 {
@@ -21,7 +22,10 @@ namespace PolygonEditor.Constraints
             var secondVertex = edge.GetOtherEnd(current);
             if (secondVertex == null) return false;
             if (edge.Length == null)
+            {
+                MessageBox.Show(" edge length is null");
                 return false;
+            }
             var secondVertexVector = new Vector2(secondVertex.X, secondVertex.Y);
             var currentVertexVector = new Vector2(current.X, current.Y);
             var dir = secondVertexVector - currentVertexVector;
