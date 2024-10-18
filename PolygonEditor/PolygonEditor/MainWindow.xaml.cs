@@ -72,6 +72,7 @@ namespace PolygonEditor
                     }
                     polygon.selectedEdge.Constraints = new HorizontalEdgeConstraints();
                     polygon.ChangeVertexPosition(polygon.selectedEdge.Start, new Vertex(polygon.selectedEdge.Start.X, polygon.selectedEdge.End.Y));
+                    EnsureConstraints(polygon.selectedEdge.Start);
                     polygon.DrawPolygon();
 
                 }
@@ -104,6 +105,7 @@ namespace PolygonEditor
                     }
                     polygon.selectedEdge.Constraints = new VerticalEdgeConstraints();
                     polygon.ChangeVertexPosition(polygon.selectedEdge.Start, new Vertex(polygon.selectedEdge.End.X, polygon.selectedEdge.Start.Y));
+                    EnsureConstraints(polygon.selectedEdge.Start);
                     polygon.DrawPolygon();
 
                 }
