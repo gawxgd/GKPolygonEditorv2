@@ -425,18 +425,7 @@ namespace PolygonEditor
                     var end = polygon.selectedEdge.End;
                     Edge startEdge = start.GetOtherEdge(polygon.selectedEdge);
                     Edge endEdge = end.GetOtherEdge(polygon.selectedEdge);
-                    if (startEdge == null || endEdge == null)
-                    {
-                        foreach (var edge in polygon.edges)
-                        {
-                            Debug.WriteLine($"{edge.Start.InEdge.Start.point} {edge.Start.InEdge.End.point}");
-                        }
-                    }
-                    if (startEdge.Constraints is DistanceConstraint || endEdge.Constraints is DistanceConstraint)
-                    {
-                        MessageBox.Show("The neighboring edges already have horizontal constraints.");
-                        return;
-                    }
+                    
                     // Prompt the user for a distance value
                     string input = Microsoft.VisualBasic.Interaction.InputBox("Enter Distance:", "Set Distance", "0");
 
