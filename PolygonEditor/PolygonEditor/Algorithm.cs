@@ -13,6 +13,10 @@ namespace PolygonEditor
     {
         public static void DrawBresenhamLine(Vertex start, Vertex end, Brush color, Canvas drawingCanvas)
         {
+            if(start.point == end.point)
+            {
+                return;
+            }
             int x0 = (int)start.X, y0 = (int)start.Y;
             int x1 = (int)end.X, y1 = (int)end.Y;
             int dx = Math.Abs(x1 - x0), sx = x0 < x1 ? 1 : -1;

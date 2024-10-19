@@ -27,10 +27,12 @@ namespace PolygonEditor.Geometry
         public Vertex(double x, double y)
         {
             point = new Point((int)x, (int)y);
+
         }
         public Vertex(Point point)
         {
             this.point = point;
+
         }
         public Edge? GetOtherEdge(Edge edge)
         {

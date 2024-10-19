@@ -325,7 +325,7 @@ namespace PolygonEditor
                 //{
                 if (edge.Constraints.CheckIfEdgeHasConstraints())
                 {
-                    if (other == vertex) return !isAllEdgesPositionConstraint;
+                    if (other.Equals(vertex)) return !isAllEdgesPositionConstraint;
 
                     edge.Constraints.PreserveConstraint(edge,current,polygon);
                     current = other;

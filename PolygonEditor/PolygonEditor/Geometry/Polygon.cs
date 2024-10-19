@@ -63,7 +63,10 @@ namespace PolygonEditor.Geometry
             int oldIndex = vertices.IndexOf(oldPosition);
             if(oldIndex != -1)
             {
-               
+               if(vertices.Any(vertices => vertices.point == newPosition.point))
+                {
+                    return oldPosition;
+                }
 
                 var edgeIn = oldPosition.InEdge;
                 var edgeOut = oldPosition.OutEdge;
@@ -81,19 +84,6 @@ namespace PolygonEditor.Geometry
                 edges[oldEdgeInIndex] = edgeIn;
                 edges[oldEdgeOutIndex] = edgeOut;
                 vertices[oldIndex].point = newPosition.point;
-                //foreach (var vertex in vertices)
-                //{
-                //    Debug.WriteLine($"{vertex.point} {vertex.InEdge.Start.point} {vertex.InEdge.End.point} {vertex.OutEdge.Start.point} {vertex.OutEdge.End.point}");
-
-                //}
-                //foreach (var edge in edges)
-                //{
-                //    Debug.WriteLine($"{edge.Start.point} {edge.End.point}");
-                //}
-                //foreach (var edge in edges)
-                //{
-                //    Debug.WriteLine($"{edge.Start.InEdge.Start.point} {edge.Start.InEdge.End.point}");
-                //}
 
                 return vertices[oldIndex];
             }
