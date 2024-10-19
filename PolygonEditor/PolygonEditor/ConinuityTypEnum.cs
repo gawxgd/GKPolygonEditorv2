@@ -6,7 +6,10 @@ using System.Threading.Tasks;
 
 namespace PolygonEditor
 {
-    internal class ConinuityTypEnum
+    public enum ConinuityType
     {
+        G0,
+        G1,
+        C1
     }
 }

@@ -11,6 +11,11 @@
             <MenuItem Header="Add Vertex" Click="AddVertex_Click"/>
             <MenuItem Header="Switch Bezier" Click="ChangeBezier_Click"/>
         </ContextMenu>
+        <ContextMenu x:Key="VertexContextMenu">
+            <MenuItem Header="Set G0 Continuity" Click="SetG0Continuity_Click" />
+            <MenuItem Header="Set G1 Continuity" Click="SetG1Continuity_Click" />
+            <MenuItem Header="Set C1 Continuity" Click="SetC1Continuity_Click" />
+        </ContextMenu>
     </Window.Resources>
     <Grid>
         <Canvas Name="DrawingCanvas" Background="White" MouseLeftButtonDown="Canvas_MouseLeftButtonDown"

@@ -20,9 +20,13 @@ namespace PolygonEditor.Geometry
         public Point point { get; set; }
         public Edge? InEdge { get; set; }
         public Edge? OutEdge { get; set; }
+
+        public ConinuityType continuityType;
         public Vertex(int x, int y)
         {
             point = new Point(x, y);
+            continuityType = ConinuityType.G0;
+
         }
         public Vertex(double x, double y)
         {
@@ -33,6 +37,10 @@ namespace PolygonEditor.Geometry
         {
             this.point = point;
 
+        }
+        public void SetContinuity(ConinuityType type)
+        {
+            continuityType = type;
         }
         public Edge? GetOtherEdge(Edge edge)
         {

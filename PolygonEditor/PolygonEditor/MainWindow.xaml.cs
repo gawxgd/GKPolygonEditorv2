@@ -281,8 +281,13 @@ namespace PolygonEditor
             {
                 System.Windows.Point mousePosition = e.GetPosition(DrawingCanvas);
                 normal_MouseRightButtonDown(mousePosition);
-
-                if (polygon.selectedEdge != null)
+                if(polygon.selectedVertex != null)
+                {
+                    ContextMenu vertexMenu = (ContextMenu)this.Resources["VertexContextMenu"];
+                    vertexMenu.PlacementTarget = DrawingCanvas;
+                    vertexMenu.IsOpen = true;
+                }
+                else if (polygon.selectedEdge != null)
                 {
                     ContextMenu contextMenu = (ContextMenu)this.Resources["EdgeContextMenu"];
                     contextMenu.PlacementTarget = DrawingCanvas;
@@ -514,6 +519,29 @@ namespace PolygonEditor
 
             }
             polygon.DrawPolygon();
+        }
+        private void SetG0Continuity_Click(object sender, RoutedEventArgs e)
+        {
+            if (polygon.selectedVertex != null)
+            {
+                polygon.selectedVertex.SetContinuity(ConinuityType.G0);
+            }
+        }
+
+        private void SetG1Continuity_Click(object sender, RoutedEventArgs e)
+        {
+            if (polygon.selectedVertex != null)
+            {
+                polygon.selectedVertex.SetContinuity(ConinuityType.G1);
+            }
+        }
+
+        private void SetC1Continuity_Click(object sender, RoutedEventArgs e)
+        {
+            if (polygon.selectedVertex != null)
+            {
+                polygon.selectedVertex.SetContinuity(ConinuityType.C1);
+            }
         }
     }
 }
