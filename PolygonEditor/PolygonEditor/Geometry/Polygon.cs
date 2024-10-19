@@ -24,6 +24,8 @@ namespace PolygonEditor.Geometry
         public Vertex? selectedVertex;
         public Edge? selectedEdge;
         public Vertex? movingVertex;
+
+        public Vertex? movingContolPoint;
         public Polygon(List<System.Drawing.Point> points, Canvas drawingCanvas)
         {
             this.vertices = new List<Vertex>();
@@ -101,13 +103,30 @@ namespace PolygonEditor.Geometry
                 int nextIndex = (i + 1) % vertices.Count;
                 Vertex start = vertices[i];
                 Vertex end = vertices[nextIndex];
-                if (selectedEdge != null && selectedEdge.Equals(new Edge(start, end)))
+                Edge edge = new Edge(start, end);
+                int edgeIndex = edges.IndexOf(edge);
+                Edge currentEdge = edges[edgeIndex];
+                if (currentEdge.isBezier)
                 {
-                    Algorithm.DrawBresenhamLine(start, end, Brushes.Red, drawingCanvas);
+                    if (selectedEdge != null && selectedEdge.Equals(new Edge(start, end)))
+                    {
+                        Algorithm.DrawBezier(currentEdge, Brushes.Red, drawingCanvas);
+                    }
+                    else
+                    {
+                        Algorithm.DrawBezier(currentEdge, Brushes.Blue, drawingCanvas);
+                    }
                 }
                 else
                 {
-                    Algorithm.DrawBresenhamLine(start, end, Brushes.Black, drawingCanvas);
+                    if (selectedEdge != null && selectedEdge.Equals(new Edge(start, end)))
+                    {
+                        Algorithm.DrawBresenhamLine(start, end, Brushes.Red, drawingCanvas);
+                    }
+                    else
+                    {
+                        Algorithm.DrawBresenhamLine(start, end, Brushes.Black, drawingCanvas);
+                    }
                 }
                 if(selectedVertex != null && selectedVertex.Equals(start))
                 {

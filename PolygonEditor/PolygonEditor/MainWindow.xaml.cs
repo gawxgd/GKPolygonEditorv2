@@ -153,6 +153,24 @@ namespace PolygonEditor
                     return; // Exit early if a vertex is selected
                 }
             }
+            foreach(Edge e in polygon.edges)
+            {
+                if (e.ControlPoint1 != null && e.ControlPoint2 != null)
+                {
+                    if (Algorithm.CalculateDistance(e.ControlPoint1, mousePosition) < 10)
+                    {
+                        polygon.movingContolPoint = e.ControlPoint1;
+                        polygon.DrawPolygon();
+                        return; // Exit early if a vertex is selected
+                    }
+                    else if (Algorithm.CalculateDistance(e.ControlPoint2, mousePosition) < 10)
+                    {
+                        polygon.movingContolPoint = e.ControlPoint2;
+                        polygon.DrawPolygon();
+                        return; // Exit early if a vertex is selected
+                    }
+                }
+            }
         }
 
         private void Canvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -288,10 +306,7 @@ namespace PolygonEditor
             MessageBox.Show(isDraggingPolygon ? "Polygon dragging enabled" : "Polygon dragging disabled");
         }
 
-        private void ToggleBezier_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
+        
         private bool PreserveConstraintsLoop(Vertex vertex, Func<Vertex, Edge?> direction)
         {
 
@@ -414,6 +429,13 @@ namespace PolygonEditor
                 MoveVertex(drawingPoint);
                 polygon.DrawPolygon();
             }
+            else if(polygon.movingContolPoint != null && e.LeftButton == MouseButtonState.Pressed)
+            {
+                System.Windows.Point nPosition = e.GetPosition(DrawingCanvas);
+                System.Drawing.Point drawingPoint = new System.Drawing.Point((int)nPosition.X, (int)nPosition.Y);
+                polygon.movingContolPoint.point = drawingPoint;
+                polygon.DrawPolygon();
+            }
         }
         private void SetDistance_Click(object sender, RoutedEventArgs e)
         {
@@ -452,8 +474,38 @@ namespace PolygonEditor
             
         }
 
+        private void ChangeBezier_Click(object sender, RoutedEventArgs e)
+        {
+            if(polygon.selectedEdge != null)
+            {
+               if(polygon.selectedEdge.isBezier == false)
+                {
+                    polygon.selectedEdge.isBezier = true;
+                    double midX = (polygon.selectedEdge.Start.X + polygon.selectedEdge.End.X) / 2;
+                    double midY = (polygon.selectedEdge.Start.Y + polygon.selectedEdge.End.Y) / 2;
 
+                    // Vector from start to end
+                    double deltaX = polygon.selectedEdge.End.X - polygon.selectedEdge.Start.X;
+                    double deltaY = polygon.selectedEdge.End.Y - polygon.selectedEdge.Start.Y;
 
+                    // Perpendicular vector (scaled for better control point placement)
+                    double perpX = -deltaY * 0.3; // Adjust 0.3 to change curvature intensity
+                    double perpY = deltaX * 0.3;
+
+                    // Place control points perpendicular to the line at the midpoint
+                    polygon.selectedEdge.ControlPoint1 = new Vertex(new System.Drawing.Point((int)(midX + perpX), (int)(midY + perpY)));
+                    polygon.selectedEdge.ControlPoint2 = new Vertex(new System.Drawing.Point((int)(midX - perpX), (int)(midY - perpY)));
+                }
+               else
+                {
+                    polygon.selectedEdge.isBezier = false;
+                    polygon.selectedEdge.ControlPoint1 = null;
+                    polygon.selectedEdge.ControlPoint2 = null;
+                }
+
+            }
+            polygon.DrawPolygon();
+        }
     }
 }
 

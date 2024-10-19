@@ -12,6 +12,9 @@ namespace PolygonEditor.Geometry
         public Vertex End { get; set; }
         public EdgeConstraints Constraints { get; set; }
         public float? Length;
+        public bool isBezier = false;
+        public Vertex ControlPoint1 { get; set; }  
+        public Vertex ControlPoint2 { get; set; }  
         public Edge(Vertex start, Vertex end, EdgeConstraints constraints = null )
         {
             Start = start;

@@ -9,6 +9,7 @@
             <MenuItem Header="Set Distance" Click="SetDistance_Click"/>
             <MenuItem Header="Remove Constraint" Click="RemoveConstraint_Click"/>
             <MenuItem Header="Add Vertex" Click="AddVertex_Click"/>
+            <MenuItem Header="Change to Bezier" Click="ChangeBezier_Click"/>
         </ContextMenu>
     </Window.Resources>
     <Grid>
@@ -19,7 +20,6 @@
             <Button Content="Rysuj Wielokąt" Click="DrawPolygon_Click" Margin="5"/>
             <Button Content="Usuń Zaznaczony Wierzchołek" Click="RemoveVertex_Click" Margin="5"/>
             <Button Content="Toggle Polygon Dragging" Click="TogglePolygonDragging_Click"/>
-            <Button Content="Przełącz na Bezier" Click="ToggleBezier_Click" Margin="5"/>
         </StackPanel>
     </Grid>
 </Window>

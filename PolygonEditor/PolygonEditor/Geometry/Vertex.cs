@@ -54,12 +54,12 @@ namespace PolygonEditor.Geometry
         {
             return HashCode.Combine(X, Y);
         }
-        public void DrawVertex(Vertex position, Brush color, Canvas drawingCanvas)
+        public void DrawVertex(Vertex position, Brush color, Canvas drawingCanvas, int size = 14)
         {
             Ellipse vertex = new Ellipse
             {
-                Width = 14,  // Zwiększamy szerokość
-                Height = 14, // Zwiększamy wysokość
+                Width = size,  // Zwiększamy szerokość
+                Height = size, // Zwiększamy wysokość
                 Fill = color
             };
             Canvas.SetLeft(vertex, position.X - 7);  // Aktualizujemy pozycję, aby elipsa była wycentrowana
