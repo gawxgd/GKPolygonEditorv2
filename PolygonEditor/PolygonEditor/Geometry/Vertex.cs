@@ -21,11 +21,10 @@ namespace PolygonEditor.Geometry
         public Edge? InEdge { get; set; }
         public Edge? OutEdge { get; set; }
 
-        public VertexContinuity continuityType;
+        public VertexContinuity continuityType = new NoneContinuity();
         public Vertex(int x, int y)
         {
             point = new Point(x, y);
-            continuityType = new NoneContinuity();
 
         }
         public Vertex(double x, double y)

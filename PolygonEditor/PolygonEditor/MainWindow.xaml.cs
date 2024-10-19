@@ -328,7 +328,6 @@ namespace PolygonEditor
                     {
                         current.continuityType.PreserveContinuity(current);
                     }
-
                     break;
                 }
                 else // !edge.IsBezier
@@ -389,7 +388,7 @@ namespace PolygonEditor
                 return false;
             if (polygon.edges == null || polygon.edges.Count == 0)
                 return false;
-            if (polygon.edges.All(edge => edge.Constraints.CheckIfEdgeHasConstraints() == false))
+            if (polygon.edges.All(edge => edge.Constraints.CheckIfEdgeHasConstraints() == false) && polygon.vertices.All(vertex => vertex.continuityType.CheckIfHasContinuity(vertex) == false))
             {
                 var ver = polygon.ChangeVertexPosition(polygon.movingVertex, new Vertex(newPosition));
                 if(ver != null)

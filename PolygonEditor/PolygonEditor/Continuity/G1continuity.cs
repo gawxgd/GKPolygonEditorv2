@@ -47,8 +47,30 @@ namespace PolygonEditor.Continuity
 
                 return true;  // Continuity preserved
             }
+            if (prevEdge != null && nextEdge != null && prevEdge.isBezier && !nextEdge.isBezier)
+            {
+                Vertex nonBezierVertex = nextEdge.End;
+                Vertex bezierVertex = vertex;
+                Vertex controlPoint = prevEdge.ControlPoint2;
+                Vector nonBezierToBezier = new Vector(bezierVertex.point.X - nonBezierVertex.point.X,
+                                                      bezierVertex.point.Y - nonBezierVertex.point.Y);
 
-            return false;  // Continuity couldn't be preserved
+                // Calculate the distance from Bezier vertex to the control point (to preserve its distance)
+                double distance = Math.Sqrt(Math.Pow(controlPoint.point.X - bezierVertex.point.X, 2) +
+                                            Math.Pow(controlPoint.point.Y - bezierVertex.point.Y, 2));
+
+                // Normalize the vector to get the direction
+                nonBezierToBezier.Normalize();
+
+                // Adjust the control point so that it's collinear with the non-Bezier and Bezier vertex
+                prevEdge.ControlPoint2 = new Vertex(
+                    (int)(bezierVertex.point.X + nonBezierToBezier.X * distance),
+                    (int)(bezierVertex.point.Y + nonBezierToBezier.Y * distance)
+                );
+
+            }
+
+                return false;  // Continuity couldn't be preserved
         }
 
     }
