@@ -12,6 +12,8 @@ using System.Drawing;
 using System.Windows.Media;
 using PolygonEditor.Constraints;
 using System.Diagnostics;
+using System.Windows.Shell;
+using PolygonEditor.Continuity;
 
 namespace PolygonEditor
 {
@@ -213,25 +215,6 @@ namespace PolygonEditor
 
             tempPoints.Clear();
         }
-        private bool IsPointNearLine(Vertex start, Vertex end, System.Windows.Point point, double threshold = 5)
-        {
-            double lineLength = Math.Sqrt(Math.Pow(end.X - start.X, 2) + Math.Pow(end.Y - start.Y, 2)); // euclidian norm line length
-
-            if (lineLength < 0.1) // Avoid division by near-zero line length
-                return false;
-
-            double distance = Math.Abs((end.Y - start.Y) * point.X - (end.X - start.X) * point.Y + end.X * start.Y - end.Y * start.X)
-                              / lineLength; // edge point distance using perpendicular formula
-
-            if (distance > threshold) // Check if the point is within the threshold distance from the line
-                return false;
-
-            // Check if the projection of point onto the line segment lies within the segment
-            double dotProduct = ((point.X - start.X) * (end.X - start.X)) + ((point.Y - start.Y) * (end.Y - start.Y)); // projection of the point edge start vector on the edge
-            double projectedLengthSquared = dotProduct * dotProduct / (lineLength * lineLength);
-
-            return projectedLengthSquared <= lineLength * lineLength;
-        }
         private void normal_MouseRightButtonDown(System.Windows.Point mousePosition)
         {
             polygon.selectedVertex = null;
@@ -263,7 +246,7 @@ namespace PolygonEditor
                     }
                 }
                 // Check if the click is near the edge
-                else if (IsPointNearLine(edge.Start, edge.End, mousePosition))
+                else if (Algorithm.IsPointNearLine(edge.Start, edge.End, mousePosition))
                 {
                     polygon.selectedEdge = edge;  // Select the existing edge from the list
                     polygon.DrawPolygon();
@@ -337,35 +320,34 @@ namespace PolygonEditor
                     return false;
                 }
 
-                var other = edge.GetOtherEnd(current);
+                var otherEnd = edge.GetOtherEnd(current);
 
-                //if (edge.IsBezier)
-                //{
-                //    if (current.ConstraintType != VertexConstraintType.None &&
-                //        current.ConstraintType != VertexConstraintType.G0 &&
-                //        !current.CheckConstraint())
-                //    {
-                //        current.PreserveConstraint();
-                //    }
-
-                //    break;
-                //}
-                //else // !edge.IsBezier
-                //{
-                if (edge.Constraints.CheckIfEdgeHasConstraints())
+                if (edge.isBezier)
                 {
-                    if (other.Equals(vertex)) return !isAllEdgesPositionConstraint;
+                    if (current.continuityType.CheckIfHasContinuity(current))
+                    {
+                        current.continuityType.PreserveContinuity(current);
+                    }
 
-                    edge.Constraints.PreserveConstraint(edge,current,polygon);
-                    current = other;
-                }
-                //else if (edge.IsBezierNeighbour(other))
-                //{
-                //    current = other;
-                //}
-                else
-                {
                     break;
+                }
+                else // !edge.IsBezier
+                {
+                    if (edge.Constraints.CheckIfEdgeHasConstraints())
+                    {
+                        if (otherEnd.Equals(vertex)) return !isAllEdgesPositionConstraint;
+
+                        edge.Constraints.PreserveConstraint(edge, current, polygon);
+                        current = otherEnd;
+                    }
+                    else if (edge.CheckIfHasBezierSegmentNeighbor(otherEnd))
+                    {
+                        current = otherEnd;
+                    }
+                    else
+                    {
+                        break;
+                    }
                 }
 
             }
@@ -432,6 +414,14 @@ namespace PolygonEditor
                 {
                     polygon.ChangeVertexPosition(vertex, new Vertex(vertex.point.X + (int)offset.X, vertex.point.Y + (int)offset.Y));
                 }
+                foreach(var edge in polygon.edges)
+                {
+                    if(edge.isBezier)
+                    {
+                        edge.ControlPoint1.point = new System.Drawing.Point(edge.ControlPoint1.point.X + (int)offset.X, edge.ControlPoint1.point.Y + (int)offset.Y);
+                        edge.ControlPoint2.point = new System.Drawing.Point(edge.ControlPoint2.point.X + (int)offset.X, edge.ControlPoint2.point.Y + (int)offset.Y);
+                    }
+                }
 
                 initialMousePosition = currentMousePosition;
                 polygon.DrawPolygon();
@@ -440,7 +430,22 @@ namespace PolygonEditor
             {
                 System.Windows.Point nPosition = e.GetPosition(DrawingCanvas);
                 System.Drawing.Point drawingPoint = new System.Drawing.Point((int)nPosition.X, (int)nPosition.Y);
+                Vertex oldPosition = new Vertex(polygon.movingVertex.point);
+                //foreach (Edge edge in polygon.edges)
+                //{
+                //    if (edge.isBezier)
+                //    {
+                //        Debug.WriteLine(edge.ControlPoint1.point);
+                //        var controlPoints = Algorithm.CalculateControlPointRelativePosition(edge, oldPosition, new Vertex(drawingPoint));
+                //        int index = polygon.edges.IndexOf(edge);
+                //        polygon.edges[index].ControlPoint1 = controlPoints.Item1;
+                //        polygon.edges[index].ControlPoint2 = controlPoints.Item2;
+                //        Debug.WriteLine(controlPoints.Item1.point);
+
+                //    }
+                //}
                 MoveVertex(drawingPoint);
+                
                 polygon.DrawPolygon();
             }
             else if(polygon.movingContolPoint != null && e.LeftButton == MouseButtonState.Pressed)
@@ -492,23 +497,24 @@ namespace PolygonEditor
         {
             if(polygon.selectedEdge != null)
             {
+               if(polygon.selectedEdge.Start.InEdge.isBezier || polygon.selectedEdge.End.OutEdge.isBezier)
+                {
+                    MessageBox.Show("neighbor is already bezier"); return;
+                }
                if(polygon.selectedEdge.isBezier == false)
                 {
                     polygon.selectedEdge.isBezier = true;
-                    double midX = (polygon.selectedEdge.Start.X + polygon.selectedEdge.End.X) / 2;
-                    double midY = (polygon.selectedEdge.Start.Y + polygon.selectedEdge.End.Y) / 2;
+                    polygon.selectedEdge.Start.SetDefaultContinuity();
+                    polygon.selectedEdge.End.SetDefaultContinuity();
+                    
 
-                    // Vector from start to end
-                    double deltaX = polygon.selectedEdge.End.X - polygon.selectedEdge.Start.X;
-                    double deltaY = polygon.selectedEdge.End.Y - polygon.selectedEdge.Start.Y;
+                    var controlPoints = Algorithm.CalculateControlPointPosition(polygon.selectedEdge);
+                    polygon.selectedEdge.ControlPoint1 = controlPoints.Item1;
+                    polygon.selectedEdge.ControlPoint2 = controlPoints.Item2;
 
-                    // Perpendicular vector (scaled for better control point placement)
-                    double perpX = -deltaY * 0.3; // Adjust 0.3 to change curvature intensity
-                    double perpY = deltaX * 0.3;
-
-                    // Place control points perpendicular to the line at the midpoint
-                    polygon.selectedEdge.ControlPoint1 = new Vertex(new System.Drawing.Point((int)(midX + perpX), (int)(midY + perpY)));
-                    polygon.selectedEdge.ControlPoint2 = new Vertex(new System.Drawing.Point((int)(midX - perpX), (int)(midY - perpY)));
+                    polygon.selectedEdge.Start.continuityType.PreserveContinuity(polygon.selectedEdge.Start);
+                    polygon.selectedEdge.End.continuityType.PreserveContinuity(polygon.selectedEdge.End);
+                    
                 }
                else
                 {
@@ -524,7 +530,7 @@ namespace PolygonEditor
         {
             if (polygon.selectedVertex != null)
             {
-                polygon.selectedVertex.SetContinuity(ConinuityType.G0);
+                polygon.selectedVertex.continuityType = new NoneContinuity();
             }
         }
 
@@ -532,7 +538,8 @@ namespace PolygonEditor
         {
             if (polygon.selectedVertex != null)
             {
-                polygon.selectedVertex.SetContinuity(ConinuityType.G1);
+                polygon.selectedVertex.continuityType = new G1continuity();
+                //polygon.selectedVertex.continuityType.PreserveContinuity(polygon.selectedVertex);
             }
         }
 
@@ -540,7 +547,7 @@ namespace PolygonEditor
         {
             if (polygon.selectedVertex != null)
             {
-                polygon.selectedVertex.SetContinuity(ConinuityType.C1);
+                polygon.selectedVertex.continuityType = new NoneContinuity();
             }
         }
     }

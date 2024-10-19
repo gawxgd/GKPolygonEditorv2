@@ -12,7 +12,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using PolygonEditor.Geometry;
 using System.Drawing;
-
+using PolygonEditor.Continuity;
 namespace PolygonEditor.Geometry
 {
     public class Vertex
@@ -21,11 +21,11 @@ namespace PolygonEditor.Geometry
         public Edge? InEdge { get; set; }
         public Edge? OutEdge { get; set; }
 
-        public ConinuityType continuityType;
+        public VertexContinuity continuityType;
         public Vertex(int x, int y)
         {
             point = new Point(x, y);
-            continuityType = ConinuityType.G0;
+            continuityType = new NoneContinuity();
 
         }
         public Vertex(double x, double y)
@@ -38,10 +38,11 @@ namespace PolygonEditor.Geometry
             this.point = point;
 
         }
-        public void SetContinuity(ConinuityType type)
+        public void SetDefaultContinuity()
         {
-            continuityType = type;
+            continuityType = new G1continuity();
         }
+
         public Edge? GetOtherEdge(Edge edge)
         {
             return edge.Equals(InEdge) ? OutEdge : InEdge;

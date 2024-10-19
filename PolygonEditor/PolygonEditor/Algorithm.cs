@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
@@ -101,6 +102,25 @@ namespace PolygonEditor
                 drawingCanvas.Children.Add(pixel);
             }
         }
+        public static bool IsPointNearLine(Vertex start, Vertex end, System.Windows.Point point, double threshold = 5)
+        {
+            double lineLength = Math.Sqrt(Math.Pow(end.X - start.X, 2) + Math.Pow(end.Y - start.Y, 2)); // euclidian norm line length
+
+            if (lineLength < 0.1) // Avoid division by near-zero line length
+                return false;
+
+            double distance = Math.Abs((end.Y - start.Y) * point.X - (end.X - start.X) * point.Y + end.X * start.Y - end.Y * start.X)
+                              / lineLength; // edge point distance using perpendicular formula
+
+            if (distance > threshold) // Check if the point is within the threshold distance from the line
+                return false;
+
+            // Check if the projection of point onto the line segment lies within the segment
+            double dotProduct = ((point.X - start.X) * (end.X - start.X)) + ((point.Y - start.Y) * (end.Y - start.Y)); // projection of the point edge start vector on the edge
+            double projectedLengthSquared = dotProduct * dotProduct / (lineLength * lineLength);
+
+            return projectedLengthSquared <= lineLength * lineLength;
+        }
         public static bool IsPointNearBezierCurve(Edge edge, System.Windows.Point mousePosition, double threshold = 10)
         {
             var p0 = edge.Start;
@@ -130,6 +150,50 @@ namespace PolygonEditor
                 }
             }
             return false; // Point is not near the Bezier curve
+        }
+        public static (Vertex, Vertex) CalculateControlPointPosition(Edge edge)
+        {
+            double midX = (edge.Start.X + edge.End.X) / 2;
+            double midY = (edge.Start.Y + edge.End.Y) / 2;
+
+            // Vector from start to end
+            double deltaX = edge.End.X - edge.Start.X;
+            double deltaY = edge.End.Y - edge.Start.Y;
+
+            // Perpendicular vector (scaled for better control point placement)
+            double perpX = -deltaY * 0.3; // Adjust 0.3 to change curvature intensity
+            double perpY = deltaX * 0.3;
+
+            // Place control points perpendicular to the line at the midpoint
+            return (new Vertex(new System.Drawing.Point((int)(midX + perpX), (int)(midY + perpY))), new Vertex(new System.Drawing.Point((int)(midX - perpX), (int)(midY - perpY))));
+        }
+        public static (Vertex, Vertex) CalculateControlPointRelativePosition(Edge edge, Vertex oldPosition, Vertex newPosition)
+        {
+            // Determine if the moving vertex is the start or end vertex of the edge
+            bool isMovingStartVertex = edge.Start.Equals(oldPosition);
+            bool isMovingEndVertex = edge.End.Equals(oldPosition);
+
+            System.Windows.Point nPosition = new System.Windows.Point(newPosition.X, newPosition.Y);
+            System.Windows.Point oPosition = new System.Windows.Point(oldPosition.X, oldPosition.Y);
+            Vector offset = nPosition - oPosition;
+
+            // Adjust control points relative to the moving vertex
+            Vertex newControlPoint1 = edge.ControlPoint1;
+            Vertex newControlPoint2 = edge.ControlPoint2;
+
+            if (isMovingStartVertex)
+            {
+                // Adjust ControlPoint1 relative to StartPoint (if the StartPoint is moving)
+                newControlPoint1 = new Vertex(edge.ControlPoint1.point.X + (int)offset.X, edge.ControlPoint1.point.Y + (int)offset.Y);
+            }
+
+            if (isMovingEndVertex)
+            {
+                // Adjust ControlPoint2 relative to EndPoint (if the EndPoint is moving)
+                newControlPoint2 = new Vertex(edge.ControlPoint2.point.X + (int)offset.X, edge.ControlPoint2.point.Y + (int)offset.Y);
+            }
+
+            return (newControlPoint1, newControlPoint2);
         }
 
 

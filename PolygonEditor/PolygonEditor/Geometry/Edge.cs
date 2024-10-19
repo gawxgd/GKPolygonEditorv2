@@ -31,6 +31,21 @@ namespace PolygonEditor.Geometry
             return (Start.Equals(other.Start) && End.Equals(other.End)) ||
                    (Start.Equals(other.End) && End.Equals(other.Start));
         }
+        public bool CheckIfHasBezierSegmentNeighbor(Vertex o)
+        {
+            if(o.Equals(Start))
+            {
+                return o.InEdge.isBezier;
+            }
+            else if(o.Equals(End))
+            {
+                return o.OutEdge.isBezier;
+            }
+            else
+            {
+                return false;
+            }
+        }
 
         public override bool Equals(object? obj)
         {
