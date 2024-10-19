@@ -9,7 +9,7 @@
             <MenuItem Header="Set Distance" Click="SetDistance_Click"/>
             <MenuItem Header="Remove Constraint" Click="RemoveConstraint_Click"/>
             <MenuItem Header="Add Vertex" Click="AddVertex_Click"/>
-            <MenuItem Header="Change to Bezier" Click="ChangeBezier_Click"/>
+            <MenuItem Header="Switch Bezier" Click="ChangeBezier_Click"/>
         </ContextMenu>
     </Window.Resources>
     <Grid>

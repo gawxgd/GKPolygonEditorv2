@@ -253,8 +253,17 @@ namespace PolygonEditor
             // Loop through the existing edge list to select the edge
             foreach (var edge in polygon.edges)
             {
+                if (edge.isBezier)
+                {
+                    if (Algorithm.IsPointNearBezierCurve(edge, mousePosition))
+                    {
+                        polygon.selectedEdge = edge;
+                        polygon.DrawPolygon();
+                        return;
+                    }
+                }
                 // Check if the click is near the edge
-                if (IsPointNearLine(edge.Start, edge.End, mousePosition))
+                else if (IsPointNearLine(edge.Start, edge.End, mousePosition))
                 {
                     polygon.selectedEdge = edge;  // Select the existing edge from the list
                     polygon.DrawPolygon();

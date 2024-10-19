@@ -101,6 +101,36 @@ namespace PolygonEditor
                 drawingCanvas.Children.Add(pixel);
             }
         }
+        public static bool IsPointNearBezierCurve(Edge edge, System.Windows.Point mousePosition, double threshold = 10)
+        {
+            var p0 = edge.Start;
+            var p1 = edge.ControlPoint1;
+            var p2 = edge.ControlPoint2;
+            var p3 = edge.End;
+            int steps = 20; // Number of steps to evaluate points along the Bezier curve
+            for (int i = 0; i <= steps; i++)
+            {
+                double t = (double)i / steps;
+
+                // Calculate the Bezier point for this t
+                double x = Math.Pow(1 - t, 3) * p0.X +
+                           3 * Math.Pow(1 - t, 2) * t * p1.X +
+                           3 * (1 - t) * Math.Pow(t, 2) * p2.X +
+                           Math.Pow(t, 3) * p3.X;
+
+                double y = Math.Pow(1 - t, 3) * p0.Y +
+                           3 * Math.Pow(1 - t, 2) * t * p1.Y +
+                           3 * (1 - t) * Math.Pow(t, 2) * p2.Y +
+                           Math.Pow(t, 3) * p3.Y;
+
+                // Check if the mouse position is within the threshold distance of the point
+                if (Math.Sqrt(Math.Pow(mousePosition.X - x, 2) + Math.Pow(mousePosition.Y - y, 2)) < threshold)
+                {
+                    return true; // Point is near the Bezier curve
+                }
+            }
+            return false; // Point is not near the Bezier curve
+        }
 
 
     }
