@@ -26,6 +26,7 @@ namespace PolygonEditor.Geometry
         public Vertex? movingVertex;
 
         public Vertex? movingContolPoint;
+        public Edge? movingControlPointEdge;
         public Polygon(List<System.Drawing.Point> points, Canvas drawingCanvas)
         {
             this.vertices = new List<Vertex>();

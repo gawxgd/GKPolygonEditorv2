@@ -162,12 +162,14 @@ namespace PolygonEditor
                     if (Algorithm.CalculateDistance(e.ControlPoint1, mousePosition) < 10)
                     {
                         polygon.movingContolPoint = e.ControlPoint1;
+                        polygon.movingControlPointEdge = e;
                         polygon.DrawPolygon();
                         return; // Exit early if a vertex is selected
                     }
                     else if (Algorithm.CalculateDistance(e.ControlPoint2, mousePosition) < 10)
                     {
                         polygon.movingContolPoint = e.ControlPoint2;
+                        polygon.movingControlPointEdge = e;
                         polygon.DrawPolygon();
                         return; // Exit early if a vertex is selected
                     }
@@ -451,7 +453,20 @@ namespace PolygonEditor
             {
                 System.Windows.Point nPosition = e.GetPosition(DrawingCanvas);
                 System.Drawing.Point drawingPoint = new System.Drawing.Point((int)nPosition.X, (int)nPosition.Y);
-                polygon.movingContolPoint.point = drawingPoint;
+                var sv = polygon.movingControlPointEdge.Start;
+                var ev = polygon.movingControlPointEdge.End;
+                if (sv.continuityType.CheckIfHasContinuity(sv))
+                {
+                    //sv.continuityType.PreserveContinuity(sv);
+                }
+                else if (ev.continuityType.CheckIfHasContinuity(ev))
+                {
+                    //ev.continuityType.PreserveContinuity(ev);
+                }
+                else
+                {
+                    polygon.movingContolPoint.point = drawingPoint;
+                }
                 polygon.DrawPolygon();
             }
         }
@@ -529,7 +544,14 @@ namespace PolygonEditor
         {
             if (polygon.selectedVertex != null)
             {
+                if (!polygon.selectedVertex.InEdge.isBezier && !polygon.selectedVertex.OutEdge.isBezier)
+                {
+                    MessageBox.Show("vertex is not in bezier segment");
+                    return;
+                }
                 polygon.selectedVertex.continuityType = new NoneContinuity();
+                polygon.DrawPolygon();
+
             }
         }
 
@@ -537,8 +559,14 @@ namespace PolygonEditor
         {
             if (polygon.selectedVertex != null)
             {
+                if (!polygon.selectedVertex.InEdge.isBezier && !polygon.selectedVertex.OutEdge.isBezier)
+                {
+                    MessageBox.Show("vertex is not in bezier segment");
+                    return;
+                }
                 polygon.selectedVertex.continuityType = new G1continuity();
-                //polygon.selectedVertex.continuityType.PreserveContinuity(polygon.selectedVertex);
+                polygon.selectedVertex.continuityType.PreserveContinuity(polygon.selectedVertex);
+                polygon.DrawPolygon();
             }
         }
 
@@ -546,6 +574,11 @@ namespace PolygonEditor
         {
             if (polygon.selectedVertex != null)
             {
+                if (!polygon.selectedVertex.InEdge.isBezier && !polygon.selectedVertex.OutEdge.isBezier)
+                {
+                    MessageBox.Show("vertex is not in bezier segment");
+                    return;
+                }
                 polygon.selectedVertex.continuityType = new NoneContinuity();
             }
         }
