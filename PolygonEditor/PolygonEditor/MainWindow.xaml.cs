@@ -425,9 +425,9 @@ namespace PolygonEditor
                 {
                     polygon.ChangeVertexPosition(vertex, new Vertex(vertex.point.X + (int)offset.X, vertex.point.Y + (int)offset.Y));
                 }
-                foreach(var edge in polygon.edges)
+                foreach (var edge in polygon.edges)
                 {
-                    if(edge.isBezier)
+                    if (edge.isBezier)
                     {
                         edge.ControlPoint1.point = new System.Drawing.Point(edge.ControlPoint1.point.X + (int)offset.X, edge.ControlPoint1.point.Y + (int)offset.Y);
                         edge.ControlPoint2.point = new System.Drawing.Point(edge.ControlPoint2.point.X + (int)offset.X, edge.ControlPoint2.point.Y + (int)offset.Y);
@@ -441,62 +441,61 @@ namespace PolygonEditor
             {
                 System.Windows.Point nPosition = e.GetPosition(DrawingCanvas);
                 System.Drawing.Point drawingPoint = new System.Drawing.Point((int)nPosition.X, (int)nPosition.Y);
-                
+
                 MoveVertex(drawingPoint);
-                
+
                 polygon.DrawPolygon();
             }
-            else if(polygon.movingContolPoint != null && e.LeftButton == MouseButtonState.Pressed)
+            else if (polygon.movingContolPoint != null && e.LeftButton == MouseButtonState.Pressed)
             {
                 System.Windows.Point nPosition = e.GetPosition(DrawingCanvas);
                 System.Drawing.Point drawingPoint = new System.Drawing.Point((int)nPosition.X, (int)nPosition.Y);
                 var sv = polygon.movingControlPointEdge.Start;
                 var ev = polygon.movingControlPointEdge.End;
-                if (sv.continuityType.CheckIfHasContinuity(sv) && ev.continuityType.CheckIfHasContinuity(ev))
-                {
-                    PolygonEditor.Geometry.Polygon backupPolygon = polygon.DeepCopy();
-                    if(polygon.movingContolPoint.Equals(polygon.movingControlPointEdge.ControlPoint1))
-                    {
-                        if (polygon.movingControlPointEdge.Start.InEdge.Constraints is HorizontalEdgeConstraints
-                            || polygon.movingControlPointEdge.Start.InEdge.Constraints is VerticalEdgeConstraints)
-                        {
-                            var newPost = Algorithm.ProjectVertex(new Vertex(drawingPoint), polygon.movingControlPointEdge.Start, polygon.movingControlPointEdge.Start.InEdge.Start);
-                            polygon.movingContolPoint.point = newPost.point;
-                        }
-                        else
-                        {
-                            polygon.movingContolPoint.point = drawingPoint;
-                            polygon.ChangeVertexPosition(polygon.movingControlPointEdge.Start.InEdge.Start,
-                                Algorithm.CalculateG1(polygon.movingContolPoint,
-                                polygon.movingControlPointEdge.Start,
-                                polygon.movingControlPointEdge.Start.InEdge.Start));
-                            PreserveConstraintsLoop(polygon.movingControlPointEdge.Start, v => v.InEdge);
-                            PreserveConstraintsLoop(polygon.movingControlPointEdge.Start.InEdge.Start, v => v.InEdge);
-                        }
 
+                PolygonEditor.Geometry.Polygon backupPolygon = polygon.DeepCopy();
+                if (sv.continuityType.CheckIfHasContinuity(sv) && polygon.movingContolPoint.Equals(polygon.movingControlPointEdge.ControlPoint1))
+                {
+                    if (polygon.movingControlPointEdge.Start.InEdge.Constraints is HorizontalEdgeConstraints
+                        || polygon.movingControlPointEdge.Start.InEdge.Constraints is VerticalEdgeConstraints)
+                    {
+                        var newPost = Algorithm.ProjectVertex(new Vertex(drawingPoint), polygon.movingControlPointEdge.Start, polygon.movingControlPointEdge.Start.InEdge.Start);
+                        polygon.movingContolPoint.point = newPost.point;
                     }
                     else
                     {
-                        if (polygon.movingControlPointEdge.End.OutEdge.Constraints is HorizontalEdgeConstraints
-                            || polygon.movingControlPointEdge.End.OutEdge.Constraints is VerticalEdgeConstraints)
-                        {
-                            var newPost = Algorithm.ProjectVertex(new Vertex(drawingPoint), polygon.movingControlPointEdge.End, polygon.movingControlPointEdge.End.OutEdge.End);
-                            polygon.movingContolPoint.point = newPost.point;
-                        }
-                        else
-                        {
-                            polygon.movingContolPoint.point = drawingPoint;
-                            polygon.ChangeVertexPosition(polygon.movingControlPointEdge.End.OutEdge.End,
-                                 Algorithm.CalculateG1(polygon.movingContolPoint,
-                                 polygon.movingControlPointEdge.End,
-                                 polygon.movingControlPointEdge.End.OutEdge.End));
-                            PreserveConstraintsLoop(polygon.movingControlPointEdge.End, v => v.OutEdge);
-                            PreserveConstraintsLoop(polygon.movingControlPointEdge.End.OutEdge.End, v => v.OutEdge);
-                        }
-
+                        polygon.movingContolPoint.point = drawingPoint;
+                        polygon.ChangeVertexPosition(polygon.movingControlPointEdge.Start.InEdge.Start,
+                            Algorithm.CalculateG1(polygon.movingContolPoint,
+                            polygon.movingControlPointEdge.Start,
+                            polygon.movingControlPointEdge.Start.InEdge.Start));
+                        PreserveConstraintsLoop(polygon.movingControlPointEdge.Start, v => v.InEdge);
+                        PreserveConstraintsLoop(polygon.movingControlPointEdge.Start.InEdge.Start, v => v.InEdge);
                     }
 
                 }
+                else if (ev.continuityType.CheckIfHasContinuity(ev))
+                {
+                    if (polygon.movingControlPointEdge.End.OutEdge.Constraints is HorizontalEdgeConstraints
+                        || polygon.movingControlPointEdge.End.OutEdge.Constraints is VerticalEdgeConstraints)
+                    {
+                        var newPost = Algorithm.ProjectVertex(new Vertex(drawingPoint), polygon.movingControlPointEdge.End, polygon.movingControlPointEdge.End.OutEdge.End);
+                        polygon.movingContolPoint.point = newPost.point;
+                    }
+                    else
+                    {
+                        polygon.movingContolPoint.point = drawingPoint;
+                        polygon.ChangeVertexPosition(polygon.movingControlPointEdge.End.OutEdge.End,
+                             Algorithm.CalculateG1(polygon.movingContolPoint,
+                             polygon.movingControlPointEdge.End,
+                             polygon.movingControlPointEdge.End.OutEdge.End));
+                        PreserveConstraintsLoop(polygon.movingControlPointEdge.End, v => v.OutEdge);
+                        PreserveConstraintsLoop(polygon.movingControlPointEdge.End.OutEdge.End, v => v.OutEdge);
+                    }
+
+                }
+
+
                 else
                 {
                     polygon.movingContolPoint.point = drawingPoint;
