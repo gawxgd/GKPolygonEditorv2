@@ -306,5 +306,7 @@ namespace PolygonEditor.Geometry
             // Add the TextBlock to the canvas
             drawingCanvas.Children.Add(lengthLabel);
         }
+        
     }
+   
 }

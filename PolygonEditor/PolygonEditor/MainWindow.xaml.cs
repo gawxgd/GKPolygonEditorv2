@@ -47,7 +47,7 @@ namespace PolygonEditor
             points.Add(vertex3);
             points.Add(vertex4);
             polygon = new PolygonEditor.Geometry.Polygon(points, DrawingCanvas);
-            polygon.edges.First().Constraints = new HorizontalEdgeConstraints();
+            polygon.edges[3].Constraints = new VerticalEdgeConstraints();
             polygon.edges[1].SetBezier(polygon);
             polygon.DrawPolygon();
         }
@@ -412,8 +412,7 @@ namespace PolygonEditor
             MoveVertexWithEdgeConstraints(newPosition);
             polygon.DrawPolygon();
             return true;
-        }
-
+        }    
         private void Canvas_MouseMove(object sender, MouseEventArgs e)
         {
             if (isDrawingMode)
@@ -472,6 +471,7 @@ namespace PolygonEditor
                                 polygon.movingControlPointEdge.Start,
                                 polygon.movingControlPointEdge.Start.InEdge.Start));
                             PreserveConstraintsLoop(polygon.movingControlPointEdge.Start, v => v.InEdge);
+                            PreserveConstraintsLoop(polygon.movingControlPointEdge.Start.InEdge.Start, v => v.InEdge);
                         }
 
                     }
@@ -491,6 +491,7 @@ namespace PolygonEditor
                                  polygon.movingControlPointEdge.End,
                                  polygon.movingControlPointEdge.End.OutEdge.End));
                             PreserveConstraintsLoop(polygon.movingControlPointEdge.End, v => v.OutEdge);
+                            PreserveConstraintsLoop(polygon.movingControlPointEdge.End.OutEdge.End, v => v.OutEdge);
                         }
 
                     }
