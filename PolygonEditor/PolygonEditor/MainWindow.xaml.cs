@@ -75,6 +75,7 @@ namespace PolygonEditor
                     polygon.selectedEdge.Constraints = new HorizontalEdgeConstraints();
                     polygon.ChangeVertexPosition(polygon.selectedEdge.Start, new Vertex(polygon.selectedEdge.Start.X, polygon.selectedEdge.End.Y));
                     EnsureConstraints(polygon.selectedEdge.Start);
+
                     polygon.DrawPolygon();
 
                 }
@@ -449,13 +450,11 @@ namespace PolygonEditor
                 System.Drawing.Point drawingPoint = new System.Drawing.Point((int)nPosition.X, (int)nPosition.Y);
                 var sv = polygon.movingControlPointEdge.Start;
                 var ev = polygon.movingControlPointEdge.End;
-                if (sv.continuityType.CheckIfHasContinuity(sv))
+                if (sv.continuityType.CheckIfHasContinuity(sv) && ev.continuityType.CheckIfHasContinuity(ev))
                 {
-                    //sv.continuityType.PreserveContinuity(sv);
-                }
-                else if (ev.continuityType.CheckIfHasContinuity(ev))
-                {
-                    //ev.continuityType.PreserveContinuity(ev);
+                    //var vertices = Algorithm.PreserveControlPoint(polygon.movingControlPointEdge);
+                    //polygon.ChangeVertexPosition(vertices.old,vertices.newV);
+                    //polygon.movingContolPoint
                 }
                 else
                 {
@@ -573,7 +572,7 @@ namespace PolygonEditor
                     MessageBox.Show("vertex is not in bezier segment");
                     return;
                 }
-                polygon.selectedVertex.continuityType = new NoneContinuity();
+                polygon.selectedVertex.continuityType = new C1continuity();
             }
         }
     }

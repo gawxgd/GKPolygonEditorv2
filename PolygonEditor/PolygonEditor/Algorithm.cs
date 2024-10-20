@@ -213,6 +213,32 @@ namespace PolygonEditor
                 }
             }
         }
+        public static (Vertex old,Vertex newV) PreserveControlPoint(Edge e)
+        {
+            Vertex controlPoint = e.ControlPoint1; // Assume we're using ControlPoint1 for the Bezier curve
+
+            // Calculate the vector from the Bezier vertex to the control point
+            Vector bezierToControlPoint = new Vector(
+                controlPoint.point.X - e.Start.X,
+                controlPoint.point.Y - e.Start.Y
+            );
+
+            // Normalize the vector to get the direction
+            bezierToControlPoint.Normalize();
+
+            // Calculate the distance from the Bezier vertex to the control point
+            double distance = Math.Sqrt(Math.Pow(controlPoint.point.X - e.Start.X, 2) +
+                                        Math.Pow(controlPoint.point.Y - e.Start.Y, 2));
+
+            // Now calculate the position of the non-Bezier vertex, placing it in the opposite direction
+            // This keeps the Bezier vertex, control point, and non-Bezier vertex collinear
+            Vertex newNonBezierVertex = new Vertex(
+                (int)(e.Start.X - bezierToControlPoint.X * distance),
+                (int)(e.Start.Y - bezierToControlPoint.Y * distance)
+            );
+
+            return (e.Start,newNonBezierVertex); // Return the calculated non-Bezier vertex
+        }
 
 
     }

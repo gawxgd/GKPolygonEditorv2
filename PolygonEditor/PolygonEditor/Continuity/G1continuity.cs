@@ -14,7 +14,6 @@ namespace PolygonEditor.Continuity
         {
             return true;
         }
-
         public override bool PreserveContinuity(Vertex vertex)
         {
             Edge prevEdge = vertex.InEdge;

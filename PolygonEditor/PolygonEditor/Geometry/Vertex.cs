@@ -85,6 +85,7 @@ namespace PolygonEditor.Geometry
                 {
                     "G1continuity" => "G1",
                     "G0continuity" => "G0",
+                    "C1continuity" => "C1",
                     _ => ""
                 };
 
