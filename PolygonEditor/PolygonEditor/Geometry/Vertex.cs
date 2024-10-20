@@ -13,26 +13,27 @@ using System.Windows.Shapes;
 using PolygonEditor.Geometry;
 using System.Drawing;
 using PolygonEditor.Continuity;
+using System.Windows;
 namespace PolygonEditor.Geometry
 {
     public class Vertex
     {
-        public Point point { get; set; }
+        public System.Drawing.Point point { get; set; }
         public Edge? InEdge { get; set; }
         public Edge? OutEdge { get; set; }
 
         public VertexContinuity continuityType = new NoneContinuity();
         public Vertex(int x, int y)
         {
-            point = new Point(x, y);
+            point = new System.Drawing.Point(x, y);
 
         }
         public Vertex(double x, double y)
         {
-            point = new Point((int)x, (int)y);
+            point = new System.Drawing.Point((int)x, (int)y);
 
         }
-        public Vertex(Point point)
+        public Vertex(System.Drawing.Point point)
         {
             this.point = point;
 
@@ -73,6 +74,34 @@ namespace PolygonEditor.Geometry
             Canvas.SetLeft(vertex, position.X - 7);  // Aktualizujemy pozycję, aby elipsa była wycentrowana
             Canvas.SetTop(vertex, position.Y - 7);   // Aktualizujemy pozycję, aby elipsa była wycentrowana
             drawingCanvas.Children.Add(vertex);
+            DrawContinuityLabel(position, size, drawingCanvas); 
+        }
+        private void DrawContinuityLabel(Vertex position, int size, Canvas drawingCanvas)
+        {
+            if (continuityType is not NoneContinuity)
+            {
+                // Determine label text based on the type of continuity
+                string labelText = continuityType.GetType().Name switch
+                {
+                    "G1continuity" => "G1",
+                    "G0continuity" => "G0",
+                    _ => ""
+                };
+
+                // Create a TextBlock to display the label
+                TextBlock label = new TextBlock
+                {
+                    Text = labelText,
+                    Foreground = Brushes.Black,
+                    FontSize = 12,
+                    Background = Brushes.White // Optional: To make the text more readable
+                };
+
+                // Set the position of the label slightly offset from the vertex
+                Canvas.SetLeft(label, position.X + size / 2);  // Offset to the right of the vertex
+                Canvas.SetTop(label, position.Y + size / 2);   // Offset below the vertex
+                drawingCanvas.Children.Add(label);
+            }
         }
     }
 }

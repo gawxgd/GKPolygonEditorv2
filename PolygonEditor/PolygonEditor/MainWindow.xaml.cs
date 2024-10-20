@@ -391,14 +391,21 @@ namespace PolygonEditor
             if (polygon.edges == null || polygon.edges.Count == 0)
                 return false;
             if (polygon.edges.All(edge => edge.Constraints.CheckIfEdgeHasConstraints() == false) && polygon.vertices.All(vertex => vertex.continuityType.CheckIfHasContinuity(vertex) == false))
-            {
+            {   // only if we want the control point to move to save the edge curve
+                //Algorithm.ChangeControlPointCositionWithoutContinuity(polygon, newPosition);
                 var ver = polygon.ChangeVertexPosition(polygon.movingVertex, new Vertex(newPosition));
                 if(ver != null)
                 {
                     polygon.movingVertex = ver; 
                 }
+               
                 polygon.DrawPolygon();
                 return true;
+            }
+            if(polygon.vertices.All(vertex => vertex.continuityType.CheckIfHasContinuity(vertex) == false))
+            {
+                // only if we want the control point to move to save the edge curve
+                //Algorithm.ChangeControlPointCositionWithoutContinuity(polygon, newPosition);
             }
             MoveVertexWithEdgeConstraints(newPosition);
             polygon.DrawPolygon();
@@ -431,20 +438,7 @@ namespace PolygonEditor
             {
                 System.Windows.Point nPosition = e.GetPosition(DrawingCanvas);
                 System.Drawing.Point drawingPoint = new System.Drawing.Point((int)nPosition.X, (int)nPosition.Y);
-                Vertex oldPosition = new Vertex(polygon.movingVertex.point);
-                //foreach (Edge edge in polygon.edges)
-                //{
-                //    if (edge.isBezier)
-                //    {
-                //        Debug.WriteLine(edge.ControlPoint1.point);
-                //        var controlPoints = Algorithm.CalculateControlPointRelativePosition(edge, oldPosition, new Vertex(drawingPoint));
-                //        int index = polygon.edges.IndexOf(edge);
-                //        polygon.edges[index].ControlPoint1 = controlPoints.Item1;
-                //        polygon.edges[index].ControlPoint2 = controlPoints.Item2;
-                //        Debug.WriteLine(controlPoints.Item1.point);
-
-                //    }
-                //}
+                
                 MoveVertex(drawingPoint);
                 
                 polygon.DrawPolygon();
@@ -549,7 +543,7 @@ namespace PolygonEditor
                     MessageBox.Show("vertex is not in bezier segment");
                     return;
                 }
-                polygon.selectedVertex.continuityType = new NoneContinuity();
+                polygon.selectedVertex.continuityType = new G0continuity();
                 polygon.DrawPolygon();
 
             }

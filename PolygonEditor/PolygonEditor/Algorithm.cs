@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -194,6 +195,23 @@ namespace PolygonEditor
             }
 
             return (newControlPoint1, newControlPoint2);
+        }
+        public static void ChangeControlPointCositionWithoutContinuity(Geometry.Polygon polygon, System.Drawing.Point newPosition)
+        {
+            Vertex oldPosition = new Vertex(polygon.movingVertex.point);
+            foreach (Edge edge in polygon.edges)
+            {
+                if (edge.isBezier)
+                {
+                    Debug.WriteLine(edge.ControlPoint1.point);
+                    var controlPoints = Algorithm.CalculateControlPointRelativePosition(edge, oldPosition, new Vertex(newPosition));
+                    int index = polygon.edges.IndexOf(edge);
+                    polygon.edges[index].ControlPoint1 = controlPoints.Item1;
+                    polygon.edges[index].ControlPoint2 = controlPoints.Item2;
+                    Debug.WriteLine(controlPoints.Item1.point);
+
+                }
+            }
         }
 
 
