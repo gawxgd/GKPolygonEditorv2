@@ -451,7 +451,7 @@ namespace PolygonEditor
                 System.Drawing.Point drawingPoint = new System.Drawing.Point((int)nPosition.X, (int)nPosition.Y);
                 var sv = polygon.movingControlPointEdge.Start;
                 var ev = polygon.movingControlPointEdge.End;
-                if (sv.continuityType.CheckIfHasContinuity(sv) && ev.continuityType.CheckIfHasContinuity(ev))
+                if (sv.continuityType.CheckIfHasContinuity(sv) || ev.continuityType.CheckIfHasContinuity(ev))
                 {
                     PolygonEditor.Geometry.Polygon backupPolygon = polygon.DeepCopy();
                     if(polygon.movingContolPoint.Equals(polygon.movingControlPointEdge.ControlPoint1))
