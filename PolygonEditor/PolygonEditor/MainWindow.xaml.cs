@@ -47,6 +47,8 @@ namespace PolygonEditor
             points.Add(vertex3);
             points.Add(vertex4);
             polygon = new PolygonEditor.Geometry.Polygon(points, DrawingCanvas);
+            polygon.edges.First().Constraints = new HorizontalEdgeConstraints();
+            polygon.edges[1].SetBezier(polygon);
             polygon.DrawPolygon();
         }
 
@@ -451,7 +453,7 @@ namespace PolygonEditor
                 System.Drawing.Point drawingPoint = new System.Drawing.Point((int)nPosition.X, (int)nPosition.Y);
                 var sv = polygon.movingControlPointEdge.Start;
                 var ev = polygon.movingControlPointEdge.End;
-                if (sv.continuityType.CheckIfHasContinuity(sv) || ev.continuityType.CheckIfHasContinuity(ev))
+                if (sv.continuityType.CheckIfHasContinuity(sv) && ev.continuityType.CheckIfHasContinuity(ev))
                 {
                     PolygonEditor.Geometry.Polygon backupPolygon = polygon.DeepCopy();
                     if(polygon.movingContolPoint.Equals(polygon.movingControlPointEdge.ControlPoint1))
@@ -548,24 +550,11 @@ namespace PolygonEditor
                 }
                if(polygon.selectedEdge.isBezier == false)
                 {
-                    polygon.selectedEdge.isBezier = true;
-                    polygon.selectedEdge.Start.SetDefaultContinuity();
-                    polygon.selectedEdge.End.SetDefaultContinuity();
-                    
-
-                    var controlPoints = Algorithm.CalculateControlPointPosition(polygon.selectedEdge);
-                    polygon.selectedEdge.ControlPoint1 = controlPoints.Item1;
-                    polygon.selectedEdge.ControlPoint2 = controlPoints.Item2;
-
-                    polygon.selectedEdge.Start.continuityType.PreserveContinuity(polygon.selectedEdge.Start,polygon);
-                    polygon.selectedEdge.End.continuityType.PreserveContinuity(polygon.selectedEdge.End,polygon);
-                    
+                    polygon.selectedEdge.SetBezier(polygon);
                 }
                else
                 {
-                    polygon.selectedEdge.isBezier = false;
-                    polygon.selectedEdge.ControlPoint1 = null;
-                    polygon.selectedEdge.ControlPoint2 = null;
+                    polygon.selectedEdge.RemoveBezier();
                 }
 
             }

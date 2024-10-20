@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Shapes;
 using PolygonEditor.Constraints;
 namespace PolygonEditor.Geometry
 {
@@ -55,6 +56,26 @@ namespace PolygonEditor.Geometry
         public override int GetHashCode()
         {
             return HashCode.Combine(Start, End);
+        }
+        public void SetBezier(Polygon polygon)
+        {
+            isBezier = true;
+            Start.SetDefaultContinuity();
+            End.SetDefaultContinuity();
+
+
+            var controlPoints = Algorithm.CalculateControlPointPosition(this);
+            ControlPoint1 = controlPoints.Item1;
+            ControlPoint2 = controlPoints.Item2;
+
+            Start.continuityType.PreserveContinuity(Start, polygon);
+            End.continuityType.PreserveContinuity(End, polygon);
+        }
+        public void RemoveBezier()
+        {
+            isBezier = false;
+            ControlPoint1 = null;
+            ControlPoint2 = null;
         }
     }
 }
