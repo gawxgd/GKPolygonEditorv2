@@ -14,62 +14,53 @@ namespace PolygonEditor.Continuity
         {
             return true;
         }
-        public override bool PreserveContinuity(Vertex vertex)
+        
+        public override bool PreserveContinuity(Vertex vertex, Polygon polygon, bool isMovingControlPoint = false)
         {
             Edge prevEdge = vertex.InEdge;
             Edge nextEdge = vertex.OutEdge;
+            if(isMovingControlPoint)
+            {
+                if (prevEdge != null && nextEdge != null && nextEdge.isBezier && !prevEdge.isBezier)
+                {
+                    Vertex nonBezierVertex = prevEdge.Start;
+                    Vertex bezierVertex = vertex;
+                    Vertex controlPoint = nextEdge.ControlPoint1;
 
-            // Ensure the previous edge is a straight line and the next edge is a Bezier curve
+                    polygon.ChangeVertexPosition(prevEdge.Start,Algorithm.CalculateG1(nonBezierVertex, bezierVertex, controlPoint));
+                    return true;
+                }
+                if (prevEdge != null && nextEdge != null && prevEdge.isBezier && !nextEdge.isBezier)
+                {
+                    Vertex nonBezierVertex = nextEdge.End;
+                    Vertex bezierVertex = vertex;
+                    Vertex controlPoint = prevEdge.ControlPoint2;
+
+                    polygon.ChangeVertexPosition(nextEdge.End, Algorithm.CalculateG1(nonBezierVertex, bezierVertex, controlPoint));
+                    return true;
+
+                }
+            }
             if (prevEdge != null && nextEdge != null && nextEdge.isBezier && !prevEdge.isBezier)
             {
-                // Get the non-Bezier vertex (from the straight line) and Bezier control point
-                Vertex nonBezierVertex = prevEdge.Start; // Assume previous edge is a straight line
+                Vertex nonBezierVertex = prevEdge.Start;
                 Vertex bezierVertex = vertex;
-                Vertex controlPoint = nextEdge.ControlPoint1; // Assume using ControlPoint1 for continuity
+                Vertex controlPoint = nextEdge.ControlPoint1;
 
-                // Calculate the vector from the non-Bezier vertex to the Bezier vertex
-                Vector nonBezierToBezier = new Vector(bezierVertex.point.X - nonBezierVertex.point.X,
-                                                      bezierVertex.point.Y - nonBezierVertex.point.Y);
-
-                // Calculate the distance from Bezier vertex to the control point (to preserve its distance)
-                double distance = Math.Sqrt(Math.Pow(controlPoint.point.X - bezierVertex.point.X, 2) +
-                                            Math.Pow(controlPoint.point.Y - bezierVertex.point.Y, 2));
-
-                // Normalize the vector to get the direction
-                nonBezierToBezier.Normalize();
-
-                // Adjust the control point so that it's collinear with the non-Bezier and Bezier vertex
-                nextEdge.ControlPoint1 = new Vertex(
-                    (int)(bezierVertex.point.X + nonBezierToBezier.X * distance),
-                    (int)(bezierVertex.point.Y + nonBezierToBezier.Y * distance)
-                );
-
-                return true;  // Continuity preserved
+                nextEdge.ControlPoint1 = Algorithm.CalculateG1(nonBezierVertex, bezierVertex, controlPoint);
+                return true;
             }
             if (prevEdge != null && nextEdge != null && prevEdge.isBezier && !nextEdge.isBezier)
             {
                 Vertex nonBezierVertex = nextEdge.End;
                 Vertex bezierVertex = vertex;
                 Vertex controlPoint = prevEdge.ControlPoint2;
-                Vector nonBezierToBezier = new Vector(bezierVertex.point.X - nonBezierVertex.point.X,
-                                                      bezierVertex.point.Y - nonBezierVertex.point.Y);
 
-                // Calculate the distance from Bezier vertex to the control point (to preserve its distance)
-                double distance = Math.Sqrt(Math.Pow(controlPoint.point.X - bezierVertex.point.X, 2) +
-                                            Math.Pow(controlPoint.point.Y - bezierVertex.point.Y, 2));
-
-                // Normalize the vector to get the direction
-                nonBezierToBezier.Normalize();
-
-                // Adjust the control point so that it's collinear with the non-Bezier and Bezier vertex
-                prevEdge.ControlPoint2 = new Vertex(
-                    (int)(bezierVertex.point.X + nonBezierToBezier.X * distance),
-                    (int)(bezierVertex.point.Y + nonBezierToBezier.Y * distance)
-                );
+                prevEdge.ControlPoint2 = Algorithm.CalculateG1(nonBezierVertex, bezierVertex, controlPoint);
+                return true;
 
             }
-
-                return false;  // Continuity couldn't be preserved
+            return false;
         }
 
     }

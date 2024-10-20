@@ -15,7 +15,7 @@ namespace PolygonEditor.Continuity
             return true;
         }
 
-       public override bool PreserveContinuity(Vertex vertex)
+       public override bool PreserveContinuity(Vertex vertex, Polygon polygon, bool isMovingControlPoint = false)
         {
             return true;
         }

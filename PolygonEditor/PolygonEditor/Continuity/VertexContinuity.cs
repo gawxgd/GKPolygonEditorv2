@@ -9,6 +9,6 @@ namespace PolygonEditor.Continuity
     public abstract class VertexContinuity
     {
         public abstract bool CheckIfHasContinuity(Vertex vertex);
-        public abstract bool PreserveContinuity(Vertex vertex);
+        public abstract bool PreserveContinuity(Vertex vertex,Polygon polygon, bool isMovingControlPoint = false);
     }
 }

@@ -239,7 +239,32 @@ namespace PolygonEditor
 
             return (e.Start,newNonBezierVertex); // Return the calculated non-Bezier vertex
         }
+        public static Vertex CalculateG1(Vertex v1, Vertex v2, Vertex v3)
+        {
+            Vector v = new Vector(v2.X - v1.X, v2.Y - v1.Y);
+            double distance = CalculateDistance(v3, v2);
+            v.Normalize();
+            return new Vertex(
+                    (int)(v2.X + v.X * distance),
+                    (int)(v2.Y + v.Y * distance));
+        }
+        public static Vertex ProjectVertex(Vertex point, Vertex linePoint1, Vertex linePoint2)
+        {
+            Vector lineVector = new Vector(linePoint2.X - linePoint1.X, linePoint2.Y - linePoint1.Y);
 
+            Vector pointVector = new Vector(point.X - linePoint1.X, point.Y - linePoint1.Y);
+
+            Vector lineDirection = lineVector;
+            lineDirection.Normalize();
+
+            double dotProduct = Vector.Multiply(pointVector, lineDirection);
+
+            Vector projection = lineDirection * dotProduct;
+
+            Vertex projectedPoint = new Vertex(linePoint1.X + projection.X, linePoint1.Y + projection.Y);
+
+            return projectedPoint;
+        }
 
     }
 }
