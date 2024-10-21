@@ -91,7 +91,17 @@ namespace PolygonEditor.Continuity
                 Vertex controlPoint = prevEdge.ControlPoint2;
                 if (nextEdge.Constraints is VerticalEdgeConstraints || nextEdge.Constraints is HorizontalEdgeConstraints)
                 {
-                    prevEdge.ControlPoint2 = Algorithm.ProjectVertex(controlPoint, nonBezierVertex, bezierVertex);
+                    // warning experimental
+                    if(nextEdge.Constraints is HorizontalEdgeConstraints)
+                    {
+                        prevEdge.ControlPoint2 = Algorithm.ProjectVertex(controlPoint, new Vertex(nonBezierVertex.X,bezierVertex.Y), 
+                            bezierVertex);
+                    }
+                    else if(nextEdge.Constraints is VerticalEdgeConstraints)
+                    {
+                        prevEdge.ControlPoint2 = Algorithm.ProjectVertex(controlPoint, new Vertex(bezierVertex.X,nonBezierVertex.Y),
+                            bezierVertex);
+                    }
                 }
                 else
                 {
