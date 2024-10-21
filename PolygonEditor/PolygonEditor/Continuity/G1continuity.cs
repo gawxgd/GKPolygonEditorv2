@@ -2,6 +2,7 @@
 using PolygonEditor.Geometry;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -71,8 +72,16 @@ namespace PolygonEditor.Continuity
                 Vertex nonBezierVertex = prevEdge.Start;
                 Vertex bezierVertex = vertex;
                 Vertex controlPoint = nextEdge.ControlPoint1;
-                
-                nextEdge.ControlPoint1 = Algorithm.CalculateG1(nonBezierVertex, bezierVertex, controlPoint);
+                if (prevEdge.Constraints is VerticalEdgeConstraints || prevEdge.Constraints is HorizontalEdgeConstraints)
+                {
+                    nextEdge.ControlPoint1 = Algorithm.ProjectVertex(controlPoint, nonBezierVertex, bezierVertex);
+                }
+                else
+                {
+
+                    nextEdge.ControlPoint1 = Algorithm.CalculateG1(nonBezierVertex, bezierVertex, controlPoint);
+                }
+
                 return true;
             }
             if (prevEdge != null && nextEdge != null && prevEdge.isBezier && !nextEdge.isBezier)
@@ -80,8 +89,14 @@ namespace PolygonEditor.Continuity
                 Vertex nonBezierVertex = nextEdge.End;
                 Vertex bezierVertex = vertex;
                 Vertex controlPoint = prevEdge.ControlPoint2;
-                
-                prevEdge.ControlPoint2 = Algorithm.CalculateG1(nonBezierVertex, bezierVertex, controlPoint);
+                if (nextEdge.Constraints is VerticalEdgeConstraints || nextEdge.Constraints is HorizontalEdgeConstraints)
+                {
+                    prevEdge.ControlPoint2 = Algorithm.ProjectVertex(controlPoint, nonBezierVertex, bezierVertex);
+                }
+                else
+                {
+                    prevEdge.ControlPoint2 = Algorithm.CalculateG1(nonBezierVertex, bezierVertex, controlPoint);
+                }
                 return true;
 
             }
