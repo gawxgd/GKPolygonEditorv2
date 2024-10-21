@@ -313,7 +313,7 @@ namespace PolygonEditor
         {
 
             Vertex current = vertex;
-            bool isAllEdgesPositionConstraint = polygon.edges.All(edge => edge.Constraints is HorizontalEdgeConstraints || edge.Constraints is VerticalEdgeConstraints);
+            //bool isAllEdgesPositionConstraint = polygon.edges.All(edge => edge.Constraints is HorizontalEdgeConstraints || edge.Constraints is VerticalEdgeConstraints);
             while (true)
             {
                 var edge = direction(current);
@@ -328,7 +328,7 @@ namespace PolygonEditor
 
                 if (edge.isBezier)
                 {
-                    if (current.continuityType.CheckIfHasContinuity(current))
+                    if (current.continuityType.CheckIfContinuityIsSatisfied(vertex,edge) == false)
                     {
                         current.continuityType.PreserveContinuity(current,polygon);
                     }
@@ -336,9 +336,10 @@ namespace PolygonEditor
                 }
                 else // !edge.IsBezier
                 {
-                    if (edge.Constraints.CheckIfEdgeHasConstraints())
+                    if (edge.Constraints.CheckIfConstraintsAreSatisfied(edge) == false)
                     {
-                        if (otherEnd.Equals(vertex)) return !isAllEdgesPositionConstraint;
+                        if (otherEnd.Equals(vertex)) 
+                            return false;
 
                         edge.Constraints.PreserveConstraint(edge, current, polygon);
                         current = otherEnd;
@@ -380,7 +381,7 @@ namespace PolygonEditor
             }
             if (!EnsureConstraints(polygon.movingVertex))
             {
-                MessageBox.Show("making deep copy");
+                MessageBox.Show("Cannot preserve constraints");
                 polygon = backupPolygon.DeepCopy();
                 return false;
             }
@@ -404,11 +405,11 @@ namespace PolygonEditor
                 polygon.DrawPolygon();
                 return true;
             }
-            if(polygon.vertices.All(vertex => vertex.continuityType.CheckIfHasContinuity(vertex) == false))
-            {
-                // only if we want the control point to move to save the edge curve
-                //Algorithm.ChangeControlPointCositionWithoutContinuity(polygon, newPosition);
-            }
+            //if(polygon.vertices.All(vertex => vertex.continuityType.CheckIfHasContinuity(vertex) == false))
+            //{
+            //    // only if we want the control point to move to save the edge curve
+            //    //Algorithm.ChangeControlPointCositionWithoutContinuity(polygon, newPosition);
+            //}
             MoveVertexWithEdgeConstraints(newPosition);
             polygon.DrawPolygon();
             return true;
@@ -555,6 +556,8 @@ namespace PolygonEditor
                else
                 {
                     polygon.selectedEdge.RemoveBezier();
+                    polygon.selectedEdge.Start.DrawVertex(polygon.selectedEdge.Start, Brushes.Black, DrawingCanvas);
+                    polygon.selectedEdge.End.DrawVertex(polygon.selectedEdge.End, Brushes.Black, DrawingCanvas);
                 }
 
             }

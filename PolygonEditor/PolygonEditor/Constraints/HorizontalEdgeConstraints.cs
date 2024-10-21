@@ -10,6 +10,21 @@ namespace PolygonEditor.Constraints
 {
     public class HorizontalEdgeConstraints : EdgeConstraints
     {
+        public override bool CheckIfConstraintsAreSatisfied(Edge edge)
+        {
+            var vertex1 = edge.Start;
+            var vertex2 = edge.End;
+
+            if (vertex1.Y == vertex2.Y)
+            {
+                return true;
+            }
+            else
+            {
+                return false; // Constraint is not satisfied
+            }
+        }
+
         public override bool CheckIfEdgeHasConstraints()
         {
             return true;

@@ -12,6 +12,21 @@ namespace PolygonEditor.Constraints
 {
     public class DistanceConstraint : EdgeConstraints
     {
+        public override bool CheckIfConstraintsAreSatisfied(Edge edge)
+        {
+            var vertex1 = edge.Start;
+            var vertex2 = edge.End;
+
+            if (Algorithm.CalculateDistance(vertex1,vertex2) == edge.Length)
+            {
+                return true;
+            }
+            else
+            {
+                return false; // Constraint is not satisfied
+            }
+        }
+
         public override bool CheckIfEdgeHasConstraints()
         {
             return true;

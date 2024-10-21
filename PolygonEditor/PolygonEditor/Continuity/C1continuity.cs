@@ -10,6 +10,11 @@ namespace PolygonEditor.Continuity
 {
     public class C1continuity : VertexContinuity
     {
+        public override bool CheckIfContinuityIsSatisfied(Vertex vertex, Edge edge)
+        {
+            return true;
+        }
+
         public override bool CheckIfHasContinuity(Vertex vertex)
         {
             return true;

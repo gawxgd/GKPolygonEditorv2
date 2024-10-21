@@ -17,6 +17,7 @@ namespace PolygonEditor.Constraints
     public abstract class EdgeConstraints
     {
         public abstract bool CheckIfEdgeHasConstraints();
+        public abstract bool CheckIfConstraintsAreSatisfied(Edge edge);
         public abstract bool PreserveConstraint(Edge edge, Vertex current, Geometry.Polygon polygon);
         public virtual void RemoveConstraints(Edge edge)
         {

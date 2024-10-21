@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Shapes;
 using PolygonEditor.Constraints;
+using PolygonEditor.Continuity;
 namespace PolygonEditor.Geometry
 {
     public class Edge
@@ -76,6 +77,8 @@ namespace PolygonEditor.Geometry
             isBezier = false;
             ControlPoint1 = null;
             ControlPoint2 = null;
+            Start.continuityType = new NoneContinuity();
+            End.continuityType = new NoneContinuity();
         }
     }
 }

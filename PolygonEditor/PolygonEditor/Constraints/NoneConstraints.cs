@@ -9,9 +9,14 @@ namespace PolygonEditor.Constraints
 {
     public class NoneConstraints : EdgeConstraints
     {
+        public override bool CheckIfConstraintsAreSatisfied(Edge edge)
+        {
+            return true; // No constraints exist
+        }
+
         public override bool CheckIfEdgeHasConstraints()
         {
-            return false; // No constraints exist
+            return false;
         }
 
         public override bool PreserveConstraint(Edge edge, Vertex current, Polygon polygon)
