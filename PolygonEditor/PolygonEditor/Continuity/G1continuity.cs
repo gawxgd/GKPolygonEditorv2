@@ -1,12 +1,5 @@
 ﻿using PolygonEditor.Constraints;
 using PolygonEditor.Geometry;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
 
 namespace PolygonEditor.Continuity
 {
@@ -38,9 +31,11 @@ namespace PolygonEditor.Continuity
         {
             Edge prevEdge = vertex.InEdge;
             Edge nextEdge = vertex.OutEdge;
+            if(prevEdge == null || nextEdge == null)
+                return false;
             if(isMovingControlPoint)
             { //inop
-                if (prevEdge != null && nextEdge != null && nextEdge.isBezier && !prevEdge.isBezier)
+                if (nextEdge.isBezier && !prevEdge.isBezier)
                 {
                     Vertex nonBezierVertex = prevEdge.Start;
                     Vertex bezierVertex = vertex;
@@ -49,7 +44,7 @@ namespace PolygonEditor.Continuity
                     polygon.ChangeVertexPosition(prevEdge.Start,Algorithm.CalculateG1(nonBezierVertex, bezierVertex, controlPoint));
                     return true;
                 }
-                if (prevEdge != null && nextEdge != null && prevEdge.isBezier && !nextEdge.isBezier)
+                if (prevEdge.isBezier && !nextEdge.isBezier)
                 {
                     Vertex nonBezierVertex = nextEdge.End;
                     Vertex bezierVertex = vertex;
@@ -60,7 +55,7 @@ namespace PolygonEditor.Continuity
 
                 }
             }
-            if (prevEdge != null && nextEdge != null && nextEdge.isBezier && !prevEdge.isBezier)
+            if (nextEdge.isBezier && !prevEdge.isBezier)
             {
                 Vertex nonBezierVertex = prevEdge.Start;
                 Vertex bezierVertex = vertex;
@@ -77,7 +72,7 @@ namespace PolygonEditor.Continuity
 
                 return true;
             }
-            if (prevEdge != null && nextEdge != null && prevEdge.isBezier && !nextEdge.isBezier)
+            if (prevEdge.isBezier && !nextEdge.isBezier)
             {
                 Vertex nonBezierVertex = nextEdge.End;
                 Vertex bezierVertex = vertex;
@@ -102,6 +97,33 @@ namespace PolygonEditor.Continuity
                 }
                 return true;
 
+            }
+            if(prevEdge.isBezier && nextEdge.isBezier)
+            {
+                // Step 1: Calculate the direction vector between nextEdge.ControlPoint1 and prevEdge.ControlPoint2
+                double directionX = nextEdge.ControlPoint1.X - prevEdge.ControlPoint2.X;
+                double directionY = nextEdge.ControlPoint1.Y - prevEdge.ControlPoint2.Y;
+
+                // Step 2: Normalize the direction vector
+                double length = Math.Sqrt(directionX * directionX + directionY * directionY);
+                directionX /= length;
+                directionY /= length;
+
+                // Step 3: Calculate half the distance between the two control points
+                double halfDistance = length / 2;
+
+                // Step 4: Reposition prevEdge.ControlPoint2 and nextEdge.ControlPoint1
+
+                // Move prevEdge.ControlPoint2 towards the vertex along the negative direction
+                var pos = new System.Drawing.Point((int)(vertex.X - directionX * halfDistance), (int)(vertex.Y - directionY * halfDistance));
+                prevEdge.ControlPoint2.point = pos;
+
+                var pos2 = new System.Drawing.Point((int)(vertex.X + directionX * halfDistance), (int)(vertex.Y + directionY * halfDistance));
+                // Move nextEdge.ControlPoint1 away from the vertex along the positive direction
+                nextEdge.ControlPoint1.point = pos2;
+                
+
+                return true;
             }
             return false;
         }

@@ -604,10 +604,10 @@ namespace PolygonEditor
         {
             if(polygon.selectedEdge != null)
             {
-               if(polygon.selectedEdge.Start.InEdge.isBezier || polygon.selectedEdge.End.OutEdge.isBezier)
-                {
-                    MessageBox.Show("neighbor is already bezier"); return;
-                }
+               //if(polygon.selectedEdge.Start.InEdge.isBezier || polygon.selectedEdge.End.OutEdge.isBezier)
+               // {
+               //     MessageBox.Show("neighbor is already bezier"); return;
+               // }
                if(polygon.selectedEdge.isBezier == false)
                 {
                     polygon.selectedEdge.SetBezier(polygon);
