@@ -40,7 +40,7 @@ namespace PolygonEditor.Continuity
             Edge prevEdge = vertex.InEdge;
             Edge nextEdge = vertex.OutEdge;
             if (isMovingControlPoint)
-            {
+            { 
                 if (prevEdge != null && nextEdge != null && nextEdge.isBezier && !prevEdge.isBezier)
                 {
                     Vertex nonBezierVertex = prevEdge.Start;
@@ -49,8 +49,8 @@ namespace PolygonEditor.Continuity
                     
                     double bezierToNonBezierDistance = Algorithm.CalculateDistance(bezierVertex, controlPoint);
                     double newDistance = bezierToNonBezierDistance * 3;
-                    var newPos = Algorithm.CalculateG1(nonBezierVertex, bezierVertex, controlPoint);
-                    newPos = Algorithm.SetVertexDistance(bezierVertex, nonBezierVertex, newDistance);
+                    var newPos = Algorithm.CalculateG1(controlPoint, bezierVertex, nonBezierVertex);
+                    newPos = Algorithm.SetVertexDistance(bezierVertex, newPos, newDistance);
                     polygon.ChangeVertexPosition(prevEdge.Start, newPos);
                     return true;
                 }
@@ -62,8 +62,8 @@ namespace PolygonEditor.Continuity
 
                     double bezierToNonBezierDistance = Algorithm.CalculateDistance(bezierVertex, controlPoint);
                     double newDistance = bezierToNonBezierDistance * 3;
-                    var newPos = Algorithm.CalculateG1(nonBezierVertex, bezierVertex, controlPoint);
-                    newPos = Algorithm.SetVertexDistance(bezierVertex, nonBezierVertex, newDistance);
+                    var newPos = Algorithm.CalculateG1(controlPoint, bezierVertex, nonBezierVertex);
+                    newPos = Algorithm.SetVertexDistance(bezierVertex, newPos, newDistance);
 
                     polygon.ChangeVertexPosition(nextEdge.End, newPos);
                     return true;

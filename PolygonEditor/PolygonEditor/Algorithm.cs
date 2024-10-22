@@ -248,6 +248,20 @@ namespace PolygonEditor
                     (int)(v2.X + v.X * distance),
                     (int)(v2.Y + v.Y * distance));
         }
+        public static Vertex CalculateG1WithDistance(Vertex v1, Vertex v2, Vertex v3, double distance)
+        {
+            Vector v3ToV2 = new Vector(v2.X - v3.X, v2.Y - v3.Y);
+
+            v3ToV2.Normalize();
+
+            Vector scaledDirection = new Vector(v3ToV2.X * distance, v3ToV2.Y * distance);
+
+            return new Vertex(
+                v1.X + scaledDirection.X,   
+                v1.Y + scaledDirection.Y
+            );
+        }
+
         public static Vertex ProjectVertex(Vertex point, Vertex linePoint1, Vertex linePoint2)
         {
             Vector lineVector = new Vector(linePoint2.X - linePoint1.X, linePoint2.Y - linePoint1.Y);

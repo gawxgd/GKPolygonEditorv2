@@ -39,7 +39,7 @@ namespace PolygonEditor.Continuity
             Edge prevEdge = vertex.InEdge;
             Edge nextEdge = vertex.OutEdge;
             if(isMovingControlPoint)
-            {
+            { //inop
                 if (prevEdge != null && nextEdge != null && nextEdge.isBezier && !prevEdge.isBezier)
                 {
                     Vertex nonBezierVertex = prevEdge.Start;
