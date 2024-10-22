@@ -471,9 +471,18 @@ namespace PolygonEditor
                     if(sv.InEdge.isBezier && sv.OutEdge.isBezier)
                     {
                         polygon.movingContolPoint.point = drawingPoint;
-                        var points = Algorithm.MoveControlPointBetweenBezierEdges(polygon.movingContolPoint, sv.InEdge, sv.OutEdge);
-                        sv.InEdge.ControlPoint2.point = points.Item2;
-                        sv.OutEdge.ControlPoint1.point = points.Item1;
+                        if (sv.continuityType is C1continuity)
+                        {
+                            var points = Algorithm.MoveControlPointBetweenBezierEdgesC1(polygon.movingContolPoint, sv.InEdge, sv.OutEdge);
+                            sv.InEdge.ControlPoint2.point = points.Item2;
+                            sv.OutEdge.ControlPoint1.point = points.Item1;
+                        }
+                        else if(sv.continuityType is G1continuity)
+                        {
+                            var points = Algorithm.MoveControlPointBetweenBezierEdgesG1control2(polygon.movingContolPoint, sv.InEdge, sv.OutEdge);
+                            sv.InEdge.ControlPoint2.point = points.Item2;
+                            sv.OutEdge.ControlPoint1.point = points.Item1;
+                        }
 
                         polygon.DrawPolygon();
                         return;
@@ -526,10 +535,20 @@ namespace PolygonEditor
                 {
                     if (ev.InEdge.isBezier && ev.OutEdge.isBezier)
                     {
-                        polygon.movingContolPoint.point = drawingPoint;
-                        var points = Algorithm.MoveControlPointBetweenBezierEdges(polygon.movingContolPoint, ev.InEdge, ev.OutEdge);
-                        ev.InEdge.ControlPoint2.point = points.Item2;
-                        ev.OutEdge.ControlPoint1.point = points.Item1;
+                        if (ev.continuityType is C1continuity)
+                        {
+                            polygon.movingContolPoint.point = drawingPoint;
+                            var points = Algorithm.MoveControlPointBetweenBezierEdgesC1(polygon.movingContolPoint, ev.InEdge, ev.OutEdge);
+                            ev.InEdge.ControlPoint2.point = points.Item2;
+                            ev.OutEdge.ControlPoint1.point = points.Item1;
+                        }
+                        else if(ev.continuityType is G1continuity)
+                        {
+                            polygon.movingContolPoint.point = drawingPoint;
+                            var points = Algorithm.MoveControlPointBetweenBezierEdgesG1control1(polygon.movingContolPoint, ev.InEdge, ev.OutEdge);
+                            ev.InEdge.ControlPoint2.point = points.Item2;
+                            ev.OutEdge.ControlPoint1.point = points.Item1;
+                        }
 
                         polygon.DrawPolygon();
                         return;

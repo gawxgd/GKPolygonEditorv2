@@ -100,22 +100,22 @@ namespace PolygonEditor.Continuity
             }
             if(prevEdge.isBezier && nextEdge.isBezier)
             {
-                double directionX = nextEdge.ControlPoint1.X - prevEdge.ControlPoint2.X;
-                double directionY = nextEdge.ControlPoint1.Y - prevEdge.ControlPoint2.Y;
+                double directionX = nextEdge.ControlPoint1.X - vertex.X;
+                double directionY = nextEdge.ControlPoint1.Y - vertex.Y;
 
                 double length = Math.Sqrt(directionX * directionX + directionY * directionY);
                 directionX /= length;
                 directionY /= length;
 
-                double halfDistance = length / 2;
+                double distancePrev = Math.Sqrt(
+                    (prevEdge.ControlPoint2.X - vertex.X) * (prevEdge.ControlPoint2.X - vertex.X) +
+                    (prevEdge.ControlPoint2.Y - vertex.Y) * (prevEdge.ControlPoint2.Y - vertex.Y)
+                );
 
+                double newPrevX = vertex.X - directionX * distancePrev;
+                double newPrevY = vertex.Y - directionY * distancePrev;
 
-                var pos = new System.Drawing.Point((int)(vertex.X - directionX * halfDistance), (int)(vertex.Y - directionY * halfDistance));
-                prevEdge.ControlPoint2.point = pos;
-
-                var pos2 = new System.Drawing.Point((int)(vertex.X + directionX * halfDistance), (int)(vertex.Y + directionY * halfDistance));
-                nextEdge.ControlPoint1.point = pos2;
-                
+                prevEdge.ControlPoint2 = new Vertex((int)newPrevX, (int)newPrevY);
 
                 return true;
             }

@@ -306,7 +306,7 @@ namespace PolygonEditor
 
             return new Vertex(newX, newY);
         }
-        public static (System.Drawing.Point, System.Drawing.Point) MoveControlPointBetweenBezierEdges(Vertex movingControlPoint, Edge prevEdge, Edge nextEdge)
+        public static (System.Drawing.Point, System.Drawing.Point) MoveControlPointBetweenBezierEdgesC1(Vertex movingControlPoint, Edge prevEdge, Edge nextEdge)
         {
             double directionX = nextEdge.ControlPoint1.X - prevEdge.ControlPoint2.X;
             double directionY = nextEdge.ControlPoint1.Y - prevEdge.ControlPoint2.Y;
@@ -329,6 +329,61 @@ namespace PolygonEditor
                 (int)(bezierVertex.Y + directionY * halfDistance));
 
             return (newControlPoint1Pos, newControlPoint2Pos);
+        }
+        public static (System.Drawing.Point, System.Drawing.Point) MoveControlPointBetweenBezierEdgesG1control2(Vertex movingControlPoint, Edge prevEdge, Edge nextEdge)
+        {
+            var bezierVertex = prevEdge.End;
+
+            double directionX = nextEdge.ControlPoint1.X - bezierVertex.X;
+            double directionY = nextEdge.ControlPoint1.Y - bezierVertex.Y;
+
+            double length = Math.Sqrt(directionX * directionX + directionY * directionY);
+            if (length != 0)
+            {
+                directionX /= length;
+                directionY /= length;
+            }
+
+            double distancePrev = Math.Sqrt(
+                (prevEdge.ControlPoint2.X - bezierVertex.X) * (prevEdge.ControlPoint2.X - bezierVertex.X) +
+                (prevEdge.ControlPoint2.Y - bezierVertex.Y) * (prevEdge.ControlPoint2.Y - bezierVertex.Y)
+            );
+
+            var newControlPoint2Pos = new System.Drawing.Point(
+                (int)(bezierVertex.X - directionX * distancePrev),
+                (int)(bezierVertex.Y - directionY * distancePrev));
+
+            var newControlPoint1Pos = nextEdge.ControlPoint1.point;
+
+            return (newControlPoint1Pos, newControlPoint2Pos);
+        }
+        public static(System.Drawing.Point,System.Drawing.Point) MoveControlPointBetweenBezierEdgesG1control1(Vertex movingControlPoint,Edge prevEdge, Edge nextEdge)
+        {
+            var bezierVertex = prevEdge.End;
+
+            double directionX = prevEdge.ControlPoint2.X - bezierVertex.X;
+            double directionY = prevEdge.ControlPoint2.Y - bezierVertex.Y;
+
+            double length = Math.Sqrt(directionX * directionX + directionY * directionY);
+            if (length != 0)
+            {
+                directionX /= length;
+                directionY /= length;
+            }
+
+            double distanceNext = Math.Sqrt(
+                (nextEdge.ControlPoint1.X - bezierVertex.X) * (nextEdge.ControlPoint1.X - bezierVertex.X) +
+                (nextEdge.ControlPoint1.Y - bezierVertex.Y) * (nextEdge.ControlPoint1.Y - bezierVertex.Y)
+            );
+
+            var newControlPoint1Pos = new System.Drawing.Point(
+                (int)(bezierVertex.X - directionX * distanceNext),
+                (int)(bezierVertex.Y - directionY * distanceNext));
+
+            var newControlPoint2Pos = prevEdge.ControlPoint2.point;
+
+            return (newControlPoint1Pos, newControlPoint2Pos);
+
         }
     }
 }
