@@ -466,10 +466,12 @@ namespace PolygonEditor
                     else
                     {
                         polygon.movingContolPoint.point = drawingPoint;
-                        polygon.ChangeVertexPosition(polygon.movingControlPointEdge.Start.InEdge.Start,
-                            Algorithm.CalculateG1(polygon.movingContolPoint,
-                            polygon.movingControlPointEdge.Start,
-                            polygon.movingControlPointEdge.Start.InEdge.Start));
+                        //if(polygon.movingControlPointEdge.Start.continuityType is G0continuity)
+                        //polygon.movingControlPointEdge.Start.continuityType.PreserveContinuity(polygon.movingControlPointEdge.Start, polygon, true);
+                        //polygon.ChangeVertexPosition(polygon.movingControlPointEdge.Start.InEdge.Start,
+                        //    Algorithm.CalculateG1(polygon.movingContolPoint,
+                        //    polygon.movingControlPointEdge.Start,
+                        //    polygon.movingControlPointEdge.Start.InEdge.Start));
                         PreserveConstraintsLoop(polygon.movingControlPointEdge.Start, v => v.InEdge);
                         PreserveConstraintsLoop(polygon.movingControlPointEdge.Start.InEdge.Start, v => v.InEdge);
                     }
@@ -603,6 +605,8 @@ namespace PolygonEditor
                     return;
                 }
                 polygon.selectedVertex.continuityType = new C1continuity();
+                polygon.selectedVertex.continuityType.PreserveContinuity(polygon.selectedVertex, polygon);
+                polygon.DrawPolygon();
             }
         }
     }

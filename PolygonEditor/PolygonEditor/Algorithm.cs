@@ -265,6 +265,33 @@ namespace PolygonEditor
 
             return projectedPoint;
         }
+        public static bool CheckIfColinear(Vertex point1, Vertex point2, Vertex point3)
+        {
+            double crossProduct = (point2.X - point1.X) * (point3.Y - point1.Y)
+                                - (point2.Y - point1.Y) * (point3.X - point1.X);
+
+            return Math.Abs(crossProduct) < 1e-10; 
+        }
+        public static Vertex SetVertexDistance(Vertex bezierVertex, Vertex nonBezierVertex, double newDistance)
+        {
+            double dx = nonBezierVertex.X - bezierVertex.X;
+            double dy = nonBezierVertex.Y - bezierVertex.Y;
+
+            double currentDistance = Math.Sqrt(dx * dx + dy * dy);
+
+            if (currentDistance < 1e-10)
+            {
+                return new Vertex(nonBezierVertex.X, nonBezierVertex.Y);
+            }
+
+            double unitX = dx / currentDistance;
+            double unitY = dy / currentDistance;
+
+            double newX = bezierVertex.X + unitX * newDistance;
+            double newY = bezierVertex.Y + unitY * newDistance;
+
+            return new Vertex(newX, newY);
+        }
 
     }
 }

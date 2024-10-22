@@ -26,14 +26,7 @@ namespace PolygonEditor.Continuity
                 control = edge.ControlPoint2;
                 nonBezier = vertex.OutEdge.GetOtherEnd(vertex);
             }
-
-
-            // Calculate the cross product to check for collinearity
-            double crossProduct = (nonBezier.X - vertex.X) * (control.Y - vertex.Y)
-                                - (nonBezier.Y - vertex.Y) * (control.X - vertex.X);
-
-            // If the cross product is zero, the points are collinear
-            return Math.Abs(crossProduct) < 1e-10; // Using a small tolerance for floating point precision
+            return Algorithm.CheckIfColinear(vertex, nonBezier, control);
         }
 
         public override bool CheckIfHasContinuity(Vertex vertex)
