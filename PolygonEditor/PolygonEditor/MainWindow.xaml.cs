@@ -14,6 +14,7 @@ using PolygonEditor.Constraints;
 using System.Diagnostics;
 using System.Windows.Shell;
 using PolygonEditor.Continuity;
+using Microsoft.Win32;
 
 namespace PolygonEditor
 {
@@ -23,6 +24,7 @@ namespace PolygonEditor
     public partial class MainWindow : Window
     {
         PolygonEditor.Geometry.Polygon? polygon;
+        private bool CustomAlgorithm = true;
 
         private bool isDrawingMode = false;
         private bool isDraggingPolygon = false;
@@ -304,7 +306,16 @@ namespace PolygonEditor
 
         private void TogglePolygonDragging_Click(object sender, RoutedEventArgs e)
         {
+            var button = sender as Button;
             isDraggingPolygon = !isDraggingPolygon;
+            if (isDraggingPolygon)
+            {
+                button.Content = "Polygon dragging enabled";
+            }
+            else
+            {
+                button.Content = "Polygon dragging disabled";
+            }
             MessageBox.Show(isDraggingPolygon ? "Polygon dragging enabled" : "Polygon dragging disabled");
         }
 
@@ -654,6 +665,21 @@ namespace PolygonEditor
                 polygon.selectedVertex.continuityType.PreserveContinuity(polygon.selectedVertex, polygon);
                 polygon.DrawPolygon();
             }
+        }
+
+        private void ChangeAlgorithm_Click(object sender, RoutedEventArgs e)
+        {
+            polygon.isCustom = !polygon.isCustom;
+            var button = sender as Button;
+            if(polygon.isCustom)
+            {
+                button.Content = "Custom Algorithm";
+            }
+            else
+            {
+                button.Content = "Library Algorithm";
+            }
+            polygon.DrawPolygon();
         }
     }
 }

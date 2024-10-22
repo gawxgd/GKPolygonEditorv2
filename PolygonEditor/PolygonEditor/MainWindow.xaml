@@ -21,7 +21,7 @@
         <Canvas Name="DrawingCanvas" Background="White" MouseLeftButtonDown="Canvas_MouseLeftButtonDown"
                 MouseMove="Canvas_MouseMove" MouseRightButtonDown="Canvas_MouseRightButtonDown" />
         <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Background="LightGray">
-            <Button Content="Nowy Wielokąt" Click="NewPolygon_Click" Margin="5"/>
+            <Button Content="Change line Algorithm" Click="ChangeAlgorithm_Click" Margin="5"/>
             <Button Content="Rysuj Wielokąt" Click="DrawPolygon_Click" Margin="5"/>
             <Button Content="Usuń Zaznaczony Wierzchołek" Click="RemoveVertex_Click" Margin="5"/>
             <Button Content="Toggle Polygon Dragging" Click="TogglePolygonDragging_Click"/>

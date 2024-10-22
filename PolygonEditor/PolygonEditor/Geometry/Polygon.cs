@@ -1,5 +1,6 @@
 ﻿using PolygonEditor.Constraints;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -27,6 +28,8 @@ namespace PolygonEditor.Geometry
 
         public Vertex? movingContolPoint;
         public Edge? movingControlPointEdge;
+
+        public bool isCustom = true;
         public Polygon(List<System.Drawing.Point> points, Canvas drawingCanvas)
         {
             this.vertices = new List<Vertex>();
@@ -96,6 +99,27 @@ namespace PolygonEditor.Geometry
                 return null;
             }
         }
+        private void DrawLine(Vertex vertex, Vertex vertex2,Brush color, Canvas drawingCanvas, bool isCustom)
+        {
+            if(isCustom)
+            {
+                Algorithm.DrawBresenhamLine(vertex, vertex2, color, drawingCanvas);
+            }
+            else
+            {
+                Line line = new Line
+                {
+                    Stroke = color, 
+                    StrokeThickness = 2, 
+                    X1 = vertex.X, 
+                    Y1 = vertex.Y, 
+                    X2 = vertex2.X, 
+                    Y2 = vertex2.Y  
+                };
+
+                drawingCanvas.Children.Add(line);
+            }
+        }
         public void DrawPolygon()
         {
             drawingCanvas.Children.Clear();
@@ -122,11 +146,11 @@ namespace PolygonEditor.Geometry
                 {
                     if (selectedEdge != null && selectedEdge.Equals(new Edge(start, end)))
                     {
-                        Algorithm.DrawBresenhamLine(start, end, Brushes.Red, drawingCanvas);
+                        DrawLine(start, end, Brushes.Red, drawingCanvas, isCustom);
                     }
                     else
                     {
-                        Algorithm.DrawBresenhamLine(start, end, Brushes.Black, drawingCanvas);
+                        DrawLine(start, end, Brushes.Black, drawingCanvas, isCustom);
                     }
                 }
                 if(selectedVertex != null && selectedVertex.Equals(start))
