@@ -17,7 +17,7 @@ namespace PolygonEditor
     {
         public static void DrawBresenhamLine(Vertex start, Vertex end, Brush color, Canvas drawingCanvas)
         {
-            if(start.point == end.point)
+            if (start.point == end.point)
             {
                 return;
             }
@@ -64,16 +64,16 @@ namespace PolygonEditor
             Algorithm.DrawDashedLine(edge.ControlPoint2, edge.End, drawingCanvas);
 
             // Rysowanie samej krzywej Beziera
-            Algorithm.DrawBezierCurve(edge.Start, edge.ControlPoint1, edge.ControlPoint2, edge.End,color, drawingCanvas);
+            Algorithm.DrawBezierCurve(edge.Start, edge.ControlPoint1, edge.ControlPoint2, edge.End, color, drawingCanvas);
 
             // Rysowanie punktów kontrolnych (małe okręgi)
-            edge.ControlPoint1.DrawVertex(edge.ControlPoint1, Brushes.Blue, drawingCanvas,10);
-            edge.ControlPoint2.DrawVertex(edge.ControlPoint2, Brushes.Blue, drawingCanvas,10);
+            edge.ControlPoint1.DrawVertex(edge.ControlPoint1, Brushes.Blue, drawingCanvas, 10);
+            edge.ControlPoint2.DrawVertex(edge.ControlPoint2, Brushes.Blue, drawingCanvas, 10);
         }
-        private static void DrawBezierCurve(Vertex p0, Vertex p1, Vertex p2, Vertex p3,Brush color, Canvas drawingCanvas)
+        private static void DrawBezierCurve(Vertex p0, Vertex p1, Vertex p2, Vertex p3, Brush color, Canvas drawingCanvas)
         {
             // Oblicz długość krawędzi (odległość od p0 do p3)
-            double length = CalculateDistance(p0, p1) + CalculateDistance(p1,p2) + CalculateDistance(p2,p3);
+            double length = CalculateDistance(p0, p1) + CalculateDistance(p1, p2) + CalculateDistance(p2, p3);
 
             // Ustal minimalną liczbę kroków oraz czynnik wpływający na liczbę kroków
             int minSteps = 20;      // Minimalna liczba kroków, nawet dla bardzo krótkich krawędzi
@@ -213,7 +213,7 @@ namespace PolygonEditor
                 }
             }
         }
-        public static (Vertex old,Vertex newV) PreserveControlPoint(Edge e)
+        public static (Vertex old, Vertex newV) PreserveControlPoint(Edge e)
         {
             Vertex controlPoint = e.ControlPoint1; // Assume we're using ControlPoint1 for the Bezier curve
 
@@ -237,7 +237,7 @@ namespace PolygonEditor
                 (int)(e.Start.Y - bezierToControlPoint.Y * distance)
             );
 
-            return (e.Start,newNonBezierVertex); // Return the calculated non-Bezier vertex
+            return (e.Start, newNonBezierVertex); // Return the calculated non-Bezier vertex
         }
         public static Vertex CalculateG1(Vertex v1, Vertex v2, Vertex v3)
         {
@@ -257,7 +257,7 @@ namespace PolygonEditor
             Vector scaledDirection = new Vector(v3ToV2.X * distance, v3ToV2.Y * distance);
 
             return new Vertex(
-                v1.X + scaledDirection.X,   
+                v1.X + scaledDirection.X,
                 v1.Y + scaledDirection.Y
             );
         }
@@ -284,7 +284,7 @@ namespace PolygonEditor
             double crossProduct = (point2.X - point1.X) * (point3.Y - point1.Y)
                                 - (point2.Y - point1.Y) * (point3.X - point1.X);
 
-            return Math.Abs(crossProduct) < 1e-10; 
+            return Math.Abs(crossProduct) < 1e-10;
         }
         public static Vertex SetVertexDistance(Vertex bezierVertex, Vertex nonBezierVertex, double newDistance)
         {
@@ -306,6 +306,29 @@ namespace PolygonEditor
 
             return new Vertex(newX, newY);
         }
+        public static (System.Drawing.Point, System.Drawing.Point) MoveControlPointBetweenBezierEdges(Vertex movingControlPoint, Edge prevEdge, Edge nextEdge)
+        {
+            double directionX = nextEdge.ControlPoint1.X - prevEdge.ControlPoint2.X;
+            double directionY = nextEdge.ControlPoint1.Y - prevEdge.ControlPoint2.Y;
+            var bezierVertex = prevEdge.End;
+            double length = Math.Sqrt(directionX * directionX + directionY * directionY);
+            if (length != 0)
+            {
+                directionX /= length;
+                directionY /= length;
+            }
 
+            double halfDistance = length / 2;
+
+            var newControlPoint2Pos = new System.Drawing.Point(
+                (int)(bezierVertex.X - directionX * halfDistance),
+                (int)(bezierVertex.Y - directionY * halfDistance));
+
+            var newControlPoint1Pos = new System.Drawing.Point(
+                (int)(bezierVertex.X + directionX * halfDistance),
+                (int)(bezierVertex.Y + directionY * halfDistance));
+
+            return (newControlPoint1Pos, newControlPoint2Pos);
+        }
     }
 }

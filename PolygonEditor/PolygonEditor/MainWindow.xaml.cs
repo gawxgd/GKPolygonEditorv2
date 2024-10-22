@@ -468,6 +468,16 @@ namespace PolygonEditor
                 PolygonEditor.Geometry.Polygon backupPolygon = polygon.DeepCopy();
                 if (sv.continuityType.CheckIfHasContinuity(sv) && polygon.movingContolPoint.Equals(polygon.movingControlPointEdge.ControlPoint1))
                 {
+                    if(sv.InEdge.isBezier && sv.OutEdge.isBezier)
+                    {
+                        polygon.movingContolPoint.point = drawingPoint;
+                        var points = Algorithm.MoveControlPointBetweenBezierEdges(polygon.movingContolPoint, sv.InEdge, sv.OutEdge);
+                        sv.InEdge.ControlPoint2.point = points.Item2;
+                        sv.OutEdge.ControlPoint1.point = points.Item1;
+
+                        polygon.DrawPolygon();
+                        return;
+                    }
                     if (polygon.movingControlPointEdge.Start.InEdge.Constraints is HorizontalEdgeConstraints
                         || polygon.movingControlPointEdge.Start.InEdge.Constraints is VerticalEdgeConstraints)
                     {
@@ -514,6 +524,16 @@ namespace PolygonEditor
                 }
                 else if (ev.continuityType.CheckIfHasContinuity(ev))
                 {
+                    if (ev.InEdge.isBezier && ev.OutEdge.isBezier)
+                    {
+                        polygon.movingContolPoint.point = drawingPoint;
+                        var points = Algorithm.MoveControlPointBetweenBezierEdges(polygon.movingContolPoint, ev.InEdge, ev.OutEdge);
+                        ev.InEdge.ControlPoint2.point = points.Item2;
+                        ev.OutEdge.ControlPoint1.point = points.Item1;
+
+                        polygon.DrawPolygon();
+                        return;
+                    }
                     if (polygon.movingControlPointEdge.End.OutEdge.Constraints is HorizontalEdgeConstraints
                         || polygon.movingControlPointEdge.End.OutEdge.Constraints is VerticalEdgeConstraints)
                     {
@@ -604,10 +624,7 @@ namespace PolygonEditor
         {
             if(polygon.selectedEdge != null)
             {
-               //if(polygon.selectedEdge.Start.InEdge.isBezier || polygon.selectedEdge.End.OutEdge.isBezier)
-               // {
-               //     MessageBox.Show("neighbor is already bezier"); return;
-               // }
+
                if(polygon.selectedEdge.isBezier == false)
                 {
                     polygon.selectedEdge.SetBezier(polygon);
