@@ -517,7 +517,7 @@ namespace PolygonEditor
                         PreserveConstraintsLoop(polygon.movingControlPointEdge.Start, v => v.InEdge);
                         PreserveConstraintsLoop(polygon.movingControlPointEdge.Start.InEdge.Start, v => v.InEdge);
                         
-                        polygon.DrawPolygon();
+                        
                     }
                     else
                     {
@@ -583,17 +583,22 @@ namespace PolygonEditor
                     if (polygon.movingControlPointEdge.End.OutEdge.Constraints is HorizontalEdgeConstraints
                         || polygon.movingControlPointEdge.End.OutEdge.Constraints is VerticalEdgeConstraints)
                     {
-                        var newPost = Algorithm.ProjectVertex(new Vertex(drawingPoint), polygon.movingControlPointEdge.End, polygon.movingControlPointEdge.End.OutEdge.End);
-                        polygon.movingContolPoint.point = newPost.point;
-
-                        if (ev.continuityType is C1continuity)
+                        polygon.movingContolPoint.point = drawingPoint;
+                        if (ev.OutEdge.Constraints is HorizontalEdgeConstraints)
                         {
-                            var distance = Algorithm.CalculateDistance(ev, polygon.movingContolPoint) * 3;
-                            var pos = Algorithm.SetVertexDistance(ev, polygon.movingControlPointEdge.End.OutEdge.End, distance);
-                            polygon.ChangeVertexPosition(polygon.movingControlPointEdge.End.OutEdge.End, pos);
-                            PreserveConstraintsLoop(polygon.movingControlPointEdge.End, v => v.OutEdge);
-                            PreserveConstraintsLoop(polygon.movingControlPointEdge.End.OutEdge.End, v => v.OutEdge);
+                            polygon.ChangeVertexPosition(polygon.movingControlPointEdge.End, new Vertex(ev.X, drawingPoint.Y));
                         }
+                        else
+                        {
+                            polygon.ChangeVertexPosition(polygon.movingControlPointEdge.End, new Vertex(drawingPoint.X, ev.Y));
+                        }
+                        var newPost = Algorithm.ProjectVertexControl(new Vertex(drawingPoint),
+                            polygon.movingControlPointEdge.End, polygon.movingControlPointEdge.End.OutEdge.End);
+                        polygon.ChangeVertexPosition(polygon.movingControlPointEdge.End.OutEdge.End, newPost);
+                        
+                        PreserveConstraintsLoop(polygon.movingControlPointEdge.End, v => v.OutEdge);
+                        PreserveConstraintsLoop(polygon.movingControlPointEdge.End.OutEdge.End, v => v.OutEdge);
+                        
                     }
                     else
                     {
