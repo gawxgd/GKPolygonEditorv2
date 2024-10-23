@@ -81,8 +81,18 @@ namespace PolygonEditor.Continuity
 
                 if (prevEdge.Constraints is VerticalEdgeConstraints || prevEdge.Constraints is HorizontalEdgeConstraints)
                 {
-                    var newControlPointPosition = Algorithm.ProjectVertex(controlPoint, nonBezierVertex, bezierVertex);
-                    nextEdge.ControlPoint1 = Algorithm.SetVertexDistance(bezierVertex, newControlPointPosition, newDistance);
+                    if (prevEdge.Constraints is HorizontalEdgeConstraints)
+                    {
+                        nextEdge.ControlPoint1 = Algorithm.CalculateG1(nonBezierVertex, bezierVertex, controlPoint);
+                        nextEdge.ControlPoint1 = new Vertex(nextEdge.ControlPoint1.X, bezierVertex.Y);
+                        nextEdge.ControlPoint1 = Algorithm.SetVertexDistance(bezierVertex, nextEdge.ControlPoint1, newDistance);
+                    }
+                    else
+                    {
+                        nextEdge.ControlPoint1 = Algorithm.CalculateG1(nonBezierVertex, bezierVertex, controlPoint);
+                        nextEdge.ControlPoint1 = new Vertex(bezierVertex.X, nextEdge.ControlPoint1.Y);
+                        nextEdge.ControlPoint1 = Algorithm.SetVertexDistance(bezierVertex, nextEdge.ControlPoint1, newDistance);
+                    }
                 }
                 else
                 {
@@ -103,18 +113,17 @@ namespace PolygonEditor.Continuity
 
                 if (nextEdge.Constraints is VerticalEdgeConstraints || nextEdge.Constraints is HorizontalEdgeConstraints)
                 {
-                    // warning experimental
                     if (nextEdge.Constraints is HorizontalEdgeConstraints)
                     {
-                        Vertex newControlPointPosition = Algorithm.ProjectVertex(controlPoint, new Vertex(nonBezierVertex.X, bezierVertex.Y),
-                            bezierVertex); 
-                        prevEdge.ControlPoint2 = Algorithm.SetVertexDistance(bezierVertex, newControlPointPosition, newDistance);
+                        prevEdge.ControlPoint2 = Algorithm.CalculateG1(nonBezierVertex, bezierVertex, controlPoint);
+                        prevEdge.ControlPoint2 = new Vertex(prevEdge.ControlPoint2.X, bezierVertex.Y);
+                        prevEdge.ControlPoint2 = Algorithm.SetVertexDistance(bezierVertex, prevEdge.ControlPoint2, newDistance);
                     }
-                    else if (nextEdge.Constraints is VerticalEdgeConstraints)
+                    else
                     {
-                        Vertex newControlPointPosition = Algorithm.ProjectVertex(controlPoint, new Vertex(bezierVertex.X, nonBezierVertex.Y),
-                            bezierVertex);
-                        prevEdge.ControlPoint2 = Algorithm.SetVertexDistance(bezierVertex, newControlPointPosition, newDistance);
+                        prevEdge.ControlPoint2 = Algorithm.CalculateG1(nonBezierVertex, bezierVertex, controlPoint);
+                        prevEdge.ControlPoint2 = new Vertex(bezierVertex.X, prevEdge.ControlPoint2.Y);
+                        prevEdge.ControlPoint2 = Algorithm.SetVertexDistance(bezierVertex, prevEdge.ControlPoint2, newDistance);
                     }
                 }
                 else
