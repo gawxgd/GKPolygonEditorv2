@@ -263,30 +263,30 @@ namespace PolygonEditor
             );
         }
 
-        public static Vertex ProjectVertex(Vertex point, Vertex linePoint1, Vertex linePoint2)
-        {
-            Vector lineVector = new Vector(linePoint2.X - linePoint1.X, linePoint2.Y - linePoint1.Y);
+        //public static Vertex ProjectVertex(Vertex point, Vertex linePoint1, Vertex linePoint2)
+        //{
+        //    Vector lineVector = new Vector(linePoint2.X - linePoint1.X, linePoint2.Y - linePoint1.Y);
 
-            Vector pointVector = new Vector(point.X - linePoint1.X, point.Y - linePoint1.Y);
+        //    Vector pointVector = new Vector(point.X - linePoint1.X, point.Y - linePoint1.Y);
 
-            Vector lineDirection = lineVector;
-            lineDirection.Normalize();
+        //    Vector lineDirection = lineVector;
+        //    lineDirection.Normalize();
 
-            double dotProduct = Vector.Multiply(pointVector, lineDirection);
+        //    double dotProduct = Vector.Multiply(pointVector, lineDirection);
 
-            Vector projection = lineDirection * dotProduct;
+        //    Vector projection = lineDirection * dotProduct;
 
-            Vertex projectedPoint = new Vertex(linePoint1.X + projection.X, linePoint1.Y + projection.Y);
+        //    Vertex projectedPoint = new Vertex(linePoint1.X + projection.X, linePoint1.Y + projection.Y);
 
-            double dotLine = Vector.Multiply(lineVector, lineVector); 
+        //    double dotLine = Vector.Multiply(lineVector, lineVector); 
 
-            if (dotProduct < 0 || dotProduct > dotLine)
-            {
-                return linePoint2;
-            }
+        //    if (dotProduct < 0 || dotProduct > dotLine)
+        //    {
+        //        return linePoint2;
+        //    }
 
-            return projectedPoint;
-        }
+        //    return projectedPoint;
+        //}
 
         public static Vertex ProjectVertexControl(Vertex point, Vertex linePoint1, Vertex linePoint2)
         {
@@ -415,6 +415,21 @@ namespace PolygonEditor
 
             return (newControlPoint1Pos, newControlPoint2Pos);
 
+        }
+        public static System.Drawing.Point ProjectC1(System.Drawing.Point s, System.Drawing.Point p, float k = 3.0f)
+        {
+            var sV = new System.Numerics.Vector2(s.X, s.Y);
+            var pV = new System.Numerics.Vector2(p.X, p.Y);
+
+            var t = sV + (sV - pV) / k;
+
+            if (Math.Abs(t.X) > int.MaxValue / 2 ||
+                Math.Abs(t.Y) > int.MaxValue / 2)
+            {
+                t = sV;
+            }
+
+            return new System.Drawing.Point((int)t.X, (int)t.Y);
         }
     }
 }

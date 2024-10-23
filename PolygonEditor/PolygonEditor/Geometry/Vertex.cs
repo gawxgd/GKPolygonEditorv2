@@ -74,7 +74,7 @@ namespace PolygonEditor.Geometry
             Canvas.SetLeft(vertex, position.X - 7);  // Aktualizujemy pozycję, aby elipsa była wycentrowana
             Canvas.SetTop(vertex, position.Y - 7);   // Aktualizujemy pozycję, aby elipsa była wycentrowana
             drawingCanvas.Children.Add(vertex);
-            DrawContinuityLabel(position, size, drawingCanvas); 
+            DrawContinuityLabel(position, size, drawingCanvas);
         }
         private void DrawContinuityLabel(Vertex position, int size, Canvas drawingCanvas)
         {
