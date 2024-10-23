@@ -278,8 +278,16 @@ namespace PolygonEditor
 
             Vertex projectedPoint = new Vertex(linePoint1.X + projection.X, linePoint1.Y + projection.Y);
 
+            double dotLine = Vector.Multiply(lineVector, lineVector); 
+
+            if (dotProduct < 0 || dotProduct > dotLine)
+            {
+                return linePoint2;
+            }
+
             return projectedPoint;
         }
+
         public static Vertex ProjectVertexControl(Vertex point, Vertex linePoint1, Vertex linePoint2)
         {
             if(linePoint1.continuityType is G1continuity)

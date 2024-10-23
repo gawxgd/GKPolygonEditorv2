@@ -62,7 +62,16 @@ namespace PolygonEditor.Continuity
                 Vertex controlPoint = nextEdge.ControlPoint1;
                 if (prevEdge.Constraints is VerticalEdgeConstraints || prevEdge.Constraints is HorizontalEdgeConstraints)
                 {
-                    nextEdge.ControlPoint1 = Algorithm.ProjectVertex(controlPoint, nonBezierVertex, bezierVertex);
+                    if (prevEdge.Constraints is HorizontalEdgeConstraints)
+                    {
+                        nextEdge.ControlPoint1 = Algorithm.CalculateG1(nonBezierVertex, bezierVertex, controlPoint);
+                        nextEdge.ControlPoint1 = new Vertex(nextEdge.ControlPoint1.X, bezierVertex.Y);
+                    }
+                    else
+                    {
+                        nextEdge.ControlPoint1 = Algorithm.CalculateG1(nonBezierVertex, bezierVertex, controlPoint);
+                        nextEdge.ControlPoint1 = new Vertex(bezierVertex.X, nextEdge.ControlPoint1.Y);
+                    }
                 }
                 else
                 {
@@ -79,16 +88,15 @@ namespace PolygonEditor.Continuity
                 Vertex controlPoint = prevEdge.ControlPoint2;
                 if (nextEdge.Constraints is VerticalEdgeConstraints || nextEdge.Constraints is HorizontalEdgeConstraints)
                 {
-                    // warning experimental
-                    if(nextEdge.Constraints is HorizontalEdgeConstraints)
+                    if (nextEdge.Constraints is HorizontalEdgeConstraints)
                     {
-                        prevEdge.ControlPoint2 = Algorithm.ProjectVertex(controlPoint, new Vertex(nonBezierVertex.X,bezierVertex.Y), 
-                            bezierVertex);
+                        prevEdge.ControlPoint2 = Algorithm.CalculateG1(nonBezierVertex, bezierVertex, controlPoint);
+                        prevEdge.ControlPoint2 = new Vertex(prevEdge.ControlPoint2.X, bezierVertex.Y);
                     }
-                    else if(nextEdge.Constraints is VerticalEdgeConstraints)
+                    else
                     {
-                        prevEdge.ControlPoint2 = Algorithm.ProjectVertex(controlPoint, new Vertex(bezierVertex.X,nonBezierVertex.Y),
-                            bezierVertex);
+                        prevEdge.ControlPoint2 = Algorithm.CalculateG1(nonBezierVertex, bezierVertex, controlPoint);
+                        prevEdge.ControlPoint2 = new Vertex(bezierVertex.X, prevEdge.ControlPoint2.Y);
                     }
                 }
                 else
