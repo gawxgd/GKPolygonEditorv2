@@ -51,6 +51,9 @@ namespace PolygonEditor
             polygon = new PolygonEditor.Geometry.Polygon(points, DrawingCanvas);
             polygon.edges[3].Constraints = new VerticalEdgeConstraints();
             polygon.edges[1].SetBezier(polygon);
+            polygon.edges[2].SetBezier(polygon);
+            polygon.vertices[2].continuityType = new C1continuity();
+            polygon.vertices[3].continuityType = new C1continuity();
             polygon.DrawPolygon();
         }
 
