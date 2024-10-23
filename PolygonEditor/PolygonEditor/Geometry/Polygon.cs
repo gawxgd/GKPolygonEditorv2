@@ -78,6 +78,10 @@ namespace PolygonEditor.Geometry
                 var edgeOut = oldPosition.OutEdge;
                 var oldEdgeInIndex = edges.IndexOf(edgeIn);
                 var oldEdgeOutIndex = edges.IndexOf(edgeOut);
+                //if (oldEdgeInIndex == -1)
+                //    return oldPosition;
+                //if (oldEdgeOutIndex == -1)
+                //    return oldPosition;
 
                 if (edgeIn != null)
                 {
@@ -130,6 +134,8 @@ namespace PolygonEditor.Geometry
                 Vertex end = vertices[nextIndex];
                 Edge edge = new Edge(start, end);
                 int edgeIndex = edges.IndexOf(edge);
+                //if (edgeIndex == -1)
+                //    return;
                 Edge currentEdge = edges[edgeIndex];
                 if (currentEdge.isBezier)
                 {

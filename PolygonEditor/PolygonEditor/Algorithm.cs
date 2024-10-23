@@ -1,4 +1,5 @@
-﻿using PolygonEditor.Geometry;
+﻿using PolygonEditor.Continuity;
+using PolygonEditor.Geometry;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -278,6 +279,28 @@ namespace PolygonEditor
             Vertex projectedPoint = new Vertex(linePoint1.X + projection.X, linePoint1.Y + projection.Y);
 
             return projectedPoint;
+        }
+        public static Vertex ProjectVertexControl(Vertex point, Vertex linePoint1, Vertex linePoint2)
+        {
+            if(linePoint1.continuityType is G1continuity)
+            {
+                var dist1 = CalculateDistance(linePoint1, linePoint2);
+                var dist2 = CalculateDistance(linePoint1, point);
+                if (dist2 == 0)
+                    return linePoint2;
+                var dist = dist1 / dist2;
+                return ProjectVertex(linePoint2, linePoint1, point,dist);
+            }
+            else if(linePoint1.continuityType is C1continuity)
+            {
+                return ProjectVertex(linePoint2, linePoint1, point,3);
+            }
+            return point;
+        }
+        public static Vertex ProjectVertex(Vertex p1, Vertex point, Vertex p2,double distance )
+        {
+            var vector = new Vector(point.point.X - p2.point.X, point.point.Y - p2.point.Y);
+            return new Vertex(point.point.X + distance * vector.X, point.point.Y + distance * vector.Y);
         }
         public static bool CheckIfColinear(Vertex point1, Vertex point2, Vertex point3)
         {

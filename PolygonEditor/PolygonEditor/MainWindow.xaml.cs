@@ -500,17 +500,24 @@ namespace PolygonEditor
                     if (polygon.movingControlPointEdge.Start.InEdge.Constraints is HorizontalEdgeConstraints
                         || polygon.movingControlPointEdge.Start.InEdge.Constraints is VerticalEdgeConstraints)
                     {
-                        var newPost = Algorithm.ProjectVertex(new Vertex(drawingPoint), polygon.movingControlPointEdge.Start, polygon.movingControlPointEdge.Start.InEdge.Start);
-                        polygon.movingContolPoint.point = newPost.point;
-
-                        if(sv.continuityType is C1continuity)
+                        polygon.movingContolPoint.point = drawingPoint;
+                        if (sv.InEdge.Constraints is HorizontalEdgeConstraints)
                         {
-                            var distance = Algorithm.CalculateDistance(sv, polygon.movingContolPoint) * 3;
-                            var pos = Algorithm.SetVertexDistance(sv, polygon.movingControlPointEdge.Start.InEdge.Start, distance);
-                            polygon.ChangeVertexPosition(polygon.movingControlPointEdge.Start.InEdge.Start, pos);
-                            PreserveConstraintsLoop(polygon.movingControlPointEdge.Start, v => v.InEdge);
-                            PreserveConstraintsLoop(polygon.movingControlPointEdge.Start.InEdge.Start, v => v.InEdge);
+                            polygon.ChangeVertexPosition(polygon.movingControlPointEdge.Start, new Vertex(sv.X, drawingPoint.Y));
                         }
+                        else
+                        {
+                            polygon.ChangeVertexPosition(polygon.movingControlPointEdge.Start, new Vertex(drawingPoint.X, sv.Y));
+                        }
+                        var newPost = Algorithm.ProjectVertexControl(new Vertex(drawingPoint), 
+                            polygon.movingControlPointEdge.Start, polygon.movingControlPointEdge.Start.InEdge.Start);
+                        polygon.ChangeVertexPosition(polygon.movingControlPointEdge.Start.InEdge.Start, newPost);
+
+                       
+                        PreserveConstraintsLoop(polygon.movingControlPointEdge.Start, v => v.InEdge);
+                        PreserveConstraintsLoop(polygon.movingControlPointEdge.Start.InEdge.Start, v => v.InEdge);
+                        
+                        polygon.DrawPolygon();
                     }
                     else
                     {
