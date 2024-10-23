@@ -67,12 +67,12 @@ namespace PolygonEditor.Geometry
         {
             Ellipse vertex = new Ellipse
             {
-                Width = size,  // Zwiększamy szerokość
-                Height = size, // Zwiększamy wysokość
+                Width = size,  
+                Height = size, 
                 Fill = color
             };
-            Canvas.SetLeft(vertex, position.X - 7);  // Aktualizujemy pozycję, aby elipsa była wycentrowana
-            Canvas.SetTop(vertex, position.Y - 7);   // Aktualizujemy pozycję, aby elipsa była wycentrowana
+            Canvas.SetLeft(vertex, position.X - 7);  
+            Canvas.SetTop(vertex, position.Y - 7);   
             drawingCanvas.Children.Add(vertex);
             DrawContinuityLabel(position, size, drawingCanvas);
         }
@@ -80,7 +80,7 @@ namespace PolygonEditor.Geometry
         {
             if (continuityType is not NoneContinuity)
             {
-                // Determine label text based on the type of continuity
+                
                 string labelText = continuityType.GetType().Name switch
                 {
                     "G1continuity" => "G1",
@@ -89,18 +89,16 @@ namespace PolygonEditor.Geometry
                     _ => ""
                 };
 
-                // Create a TextBlock to display the label
                 TextBlock label = new TextBlock
                 {
                     Text = labelText,
                     Foreground = Brushes.Black,
                     FontSize = 12,
-                    Background = Brushes.White // Optional: To make the text more readable
+                    Background = Brushes.White 
                 };
 
-                // Set the position of the label slightly offset from the vertex
-                Canvas.SetLeft(label, position.X + size / 2);  // Offset to the right of the vertex
-                Canvas.SetTop(label, position.Y + size / 2);   // Offset below the vertex
+                Canvas.SetLeft(label, position.X + size / 2);  
+                Canvas.SetTop(label, position.Y + size / 2);   
                 drawingCanvas.Children.Add(label);
             }
         }

@@ -64,25 +64,19 @@ namespace PolygonEditor
             Algorithm.DrawDashedLine(edge.ControlPoint1, edge.ControlPoint2, drawingCanvas);
             Algorithm.DrawDashedLine(edge.ControlPoint2, edge.End, drawingCanvas);
 
-            // Rysowanie samej krzywej Beziera
             Algorithm.DrawBezierCurve(edge.Start, edge.ControlPoint1, edge.ControlPoint2, edge.End, color, drawingCanvas);
 
-            // Rysowanie punktów kontrolnych (małe okręgi)
             edge.ControlPoint1.DrawVertex(edge.ControlPoint1, Brushes.Blue, drawingCanvas, 10);
             edge.ControlPoint2.DrawVertex(edge.ControlPoint2, Brushes.Blue, drawingCanvas, 10);
         }
         private static void DrawBezierCurve(Vertex p0, Vertex p1, Vertex p2, Vertex p3, Brush color, Canvas drawingCanvas)
         {
-            // Oblicz długość krawędzi (odległość od p0 do p3)
             double length = CalculateDistance(p0, p1) + CalculateDistance(p1, p2) + CalculateDistance(p2, p3);
 
-            // Ustal minimalną liczbę kroków oraz czynnik wpływający na liczbę kroków
-            int minSteps = 20;      // Minimalna liczba kroków, nawet dla bardzo krótkich krawędzi
+            int minSteps = 20;      
 
-            // Oblicz dynamiczną liczbę kroków na podstawie długości
             int steps = minSteps + (int)(length * 2);
 
-            // Algorytm iteracyjny rysowania krzywej Beziera z dynamiczną liczbą kroków
             for (int i = 0; i < steps; i++)
             {
                 double t = (double)i / steps;
@@ -97,7 +91,6 @@ namespace PolygonEditor
                            3 * (1 - t) * Math.Pow(t, 2) * p2.Y +
                            Math.Pow(t, 3) * p3.Y;
 
-                // Rysowanie punktów na krzywej
                 var pixel = new System.Windows.Shapes.Rectangle { Width = 1, Height = 1, Fill = color };
                 Canvas.SetLeft(pixel, x);
                 Canvas.SetTop(pixel, y);
@@ -106,19 +99,18 @@ namespace PolygonEditor
         }
         public static bool IsPointNearLine(Vertex start, Vertex end, System.Windows.Point point, double threshold = 5)
         {
-            double lineLength = Math.Sqrt(Math.Pow(end.X - start.X, 2) + Math.Pow(end.Y - start.Y, 2)); // euclidian norm line length
+            double lineLength = Math.Sqrt(Math.Pow(end.X - start.X, 2) + Math.Pow(end.Y - start.Y, 2)); 
 
-            if (lineLength < 0.1) // Avoid division by near-zero line length
+            if (lineLength < 0.1) 
                 return false;
 
             double distance = Math.Abs((end.Y - start.Y) * point.X - (end.X - start.X) * point.Y + end.X * start.Y - end.Y * start.X)
-                              / lineLength; // edge point distance using perpendicular formula
+                              / lineLength; 
 
-            if (distance > threshold) // Check if the point is within the threshold distance from the line
+            if (distance > threshold) 
                 return false;
 
-            // Check if the projection of point onto the line segment lies within the segment
-            double dotProduct = ((point.X - start.X) * (end.X - start.X)) + ((point.Y - start.Y) * (end.Y - start.Y)); // projection of the point edge start vector on the edge
+            double dotProduct = ((point.X - start.X) * (end.X - start.X)) + ((point.Y - start.Y) * (end.Y - start.Y)); 
             double projectedLengthSquared = dotProduct * dotProduct / (lineLength * lineLength);
 
             return projectedLengthSquared <= lineLength * lineLength;
@@ -129,12 +121,11 @@ namespace PolygonEditor
             var p1 = edge.ControlPoint1;
             var p2 = edge.ControlPoint2;
             var p3 = edge.End;
-            int steps = 20; // Number of steps to evaluate points along the Bezier curve
+            int steps = 20; 
             for (int i = 0; i <= steps; i++)
             {
                 double t = (double)i / steps;
 
-                // Calculate the Bezier point for this t
                 double x = Math.Pow(1 - t, 3) * p0.X +
                            3 * Math.Pow(1 - t, 2) * t * p1.X +
                            3 * (1 - t) * Math.Pow(t, 2) * p2.X +
@@ -145,33 +136,28 @@ namespace PolygonEditor
                            3 * (1 - t) * Math.Pow(t, 2) * p2.Y +
                            Math.Pow(t, 3) * p3.Y;
 
-                // Check if the mouse position is within the threshold distance of the point
                 if (Math.Sqrt(Math.Pow(mousePosition.X - x, 2) + Math.Pow(mousePosition.Y - y, 2)) < threshold)
                 {
-                    return true; // Point is near the Bezier curve
+                    return true; 
                 }
             }
-            return false; // Point is not near the Bezier curve
+            return false; 
         }
         public static (Vertex, Vertex) CalculateControlPointPosition(Edge edge)
         {
             double midX = (edge.Start.X + edge.End.X) / 2;
             double midY = (edge.Start.Y + edge.End.Y) / 2;
 
-            // Vector from start to end
             double deltaX = edge.End.X - edge.Start.X;
             double deltaY = edge.End.Y - edge.Start.Y;
 
-            // Perpendicular vector (scaled for better control point placement)
-            double perpX = -deltaY * 0.3; // Adjust 0.3 to change curvature intensity
+            double perpX = -deltaY * 0.3; 
             double perpY = deltaX * 0.3;
 
-            // Place control points perpendicular to the line at the midpoint
             return (new Vertex(new System.Drawing.Point((int)(midX + perpX), (int)(midY + perpY))), new Vertex(new System.Drawing.Point((int)(midX - perpX), (int)(midY - perpY))));
         }
         public static (Vertex, Vertex) CalculateControlPointRelativePosition(Edge edge, Vertex oldPosition, Vertex newPosition)
         {
-            // Determine if the moving vertex is the start or end vertex of the edge
             bool isMovingStartVertex = edge.Start.Equals(oldPosition);
             bool isMovingEndVertex = edge.End.Equals(oldPosition);
 
@@ -179,19 +165,16 @@ namespace PolygonEditor
             System.Windows.Point oPosition = new System.Windows.Point(oldPosition.X, oldPosition.Y);
             Vector offset = nPosition - oPosition;
 
-            // Adjust control points relative to the moving vertex
             Vertex newControlPoint1 = edge.ControlPoint1;
             Vertex newControlPoint2 = edge.ControlPoint2;
 
             if (isMovingStartVertex)
             {
-                // Adjust ControlPoint1 relative to StartPoint (if the StartPoint is moving)
                 newControlPoint1 = new Vertex(edge.ControlPoint1.point.X + (int)offset.X, edge.ControlPoint1.point.Y + (int)offset.Y);
             }
 
             if (isMovingEndVertex)
             {
-                // Adjust ControlPoint2 relative to EndPoint (if the EndPoint is moving)
                 newControlPoint2 = new Vertex(edge.ControlPoint2.point.X + (int)offset.X, edge.ControlPoint2.point.Y + (int)offset.Y);
             }
 
@@ -216,29 +199,24 @@ namespace PolygonEditor
         }
         public static (Vertex old, Vertex newV) PreserveControlPoint(Edge e)
         {
-            Vertex controlPoint = e.ControlPoint1; // Assume we're using ControlPoint1 for the Bezier curve
+            Vertex controlPoint = e.ControlPoint1; 
 
-            // Calculate the vector from the Bezier vertex to the control point
             Vector bezierToControlPoint = new Vector(
                 controlPoint.point.X - e.Start.X,
                 controlPoint.point.Y - e.Start.Y
             );
 
-            // Normalize the vector to get the direction
             bezierToControlPoint.Normalize();
 
-            // Calculate the distance from the Bezier vertex to the control point
             double distance = Math.Sqrt(Math.Pow(controlPoint.point.X - e.Start.X, 2) +
                                         Math.Pow(controlPoint.point.Y - e.Start.Y, 2));
 
-            // Now calculate the position of the non-Bezier vertex, placing it in the opposite direction
-            // This keeps the Bezier vertex, control point, and non-Bezier vertex collinear
             Vertex newNonBezierVertex = new Vertex(
                 (int)(e.Start.X - bezierToControlPoint.X * distance),
                 (int)(e.Start.Y - bezierToControlPoint.Y * distance)
             );
 
-            return (e.Start, newNonBezierVertex); // Return the calculated non-Bezier vertex
+            return (e.Start, newNonBezierVertex); 
         }
         public static Vertex CalculateG1(Vertex v1, Vertex v2, Vertex v3)
         {
@@ -263,30 +241,6 @@ namespace PolygonEditor
             );
         }
 
-        //public static Vertex ProjectVertex(Vertex point, Vertex linePoint1, Vertex linePoint2)
-        //{
-        //    Vector lineVector = new Vector(linePoint2.X - linePoint1.X, linePoint2.Y - linePoint1.Y);
-
-        //    Vector pointVector = new Vector(point.X - linePoint1.X, point.Y - linePoint1.Y);
-
-        //    Vector lineDirection = lineVector;
-        //    lineDirection.Normalize();
-
-        //    double dotProduct = Vector.Multiply(pointVector, lineDirection);
-
-        //    Vector projection = lineDirection * dotProduct;
-
-        //    Vertex projectedPoint = new Vertex(linePoint1.X + projection.X, linePoint1.Y + projection.Y);
-
-        //    double dotLine = Vector.Multiply(lineVector, lineVector); 
-
-        //    if (dotProduct < 0 || dotProduct > dotLine)
-        //    {
-        //        return linePoint2;
-        //    }
-
-        //    return projectedPoint;
-        //}
 
         public static Vertex ProjectVertexControl(Vertex point, Vertex linePoint1, Vertex linePoint2)
         {
@@ -416,20 +370,20 @@ namespace PolygonEditor
             return (newControlPoint1Pos, newControlPoint2Pos);
 
         }
-        public static System.Drawing.Point ProjectC1(System.Drawing.Point s, System.Drawing.Point p, float k = 3.0f)
+        public static System.Drawing.Point ProjectC1(System.Drawing.Point p1, System.Drawing.Point p2, float distProp = 3.0f)
         {
-            var sV = new System.Numerics.Vector2(s.X, s.Y);
-            var pV = new System.Numerics.Vector2(p.X, p.Y);
+            var p1Vector = new System.Numerics.Vector2(p1.X, p1.Y);
+            var p2Vector = new System.Numerics.Vector2(p2.X, p2.Y);
 
-            var t = sV + (sV - pV) / k;
+            var newP = p1Vector + (p1Vector - p2Vector) / distProp;
 
-            if (Math.Abs(t.X) > int.MaxValue / 2 ||
-                Math.Abs(t.Y) > int.MaxValue / 2)
+            if (Math.Abs(newP.X) > int.MaxValue / 2 ||
+                Math.Abs(newP.Y) > int.MaxValue / 2)
             {
-                t = sV;
+                newP = p1Vector;
             }
 
-            return new System.Drawing.Point((int)t.X, (int)t.Y);
+            return new System.Drawing.Point((int)newP.X, (int)newP.Y);
         }
     }
 }

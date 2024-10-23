@@ -143,7 +143,6 @@ namespace PolygonEditor
             var newVertex = new Vertex(mousePosition);
             newVertex.DrawVertex(newVertex, Brushes.Black, DrawingCanvas);
 
-            // Draw lines between points if more than one vertex
             if (tempPoints.Count > 1)
             {
                 Algorithm.DrawBresenhamLine(new Vertex(tempPoints[tempPoints.Count - 2]), newVertex, Brushes.Black, DrawingCanvas);
@@ -152,15 +151,13 @@ namespace PolygonEditor
         private void normal_MouseLeftButtonDown(Vertex mousePosition)
         {
             polygon.movingVertex = null;
-            // Check for vertex selection first
             for (int i = 0; i < polygon.vertices.Count; i++)
             {
-                // distance beetwean vertex and mouse
                 if (Math.Sqrt(Math.Pow(polygon.vertices[i].X - mousePosition.X, 2) + Math.Pow(polygon.vertices[i].Y - mousePosition.Y, 2)) < 10)
                 {
                     polygon.movingVertex = polygon.vertices[i];
                     polygon.DrawPolygon();
-                    return; // Exit early if a vertex is selected
+                    return; 
                 }
             }
             foreach(Edge e in polygon.edges)
@@ -172,14 +169,14 @@ namespace PolygonEditor
                         polygon.movingContolPoint = e.ControlPoint1;
                         polygon.movingControlPointEdge = e;
                         polygon.DrawPolygon();
-                        return; // Exit early if a vertex is selected
+                        return; 
                     }
                     else if (Algorithm.CalculateDistance(e.ControlPoint2, mousePosition) < 10)
                     {
                         polygon.movingContolPoint = e.ControlPoint2;
                         polygon.movingControlPointEdge = e;
                         polygon.DrawPolygon();
-                        return; // Exit early if a vertex is selected
+                        return; 
                     }
                 }
             }
@@ -193,7 +190,7 @@ namespace PolygonEditor
             {
                 drawingMode_MouseLeftButtonDown(drawingPoint);
             }
-            else if (isDraggingPolygon) // Start dragging the polygon
+            else if (isDraggingPolygon) 
             {
                 initialMousePosition = mousePosition;
             }
@@ -229,7 +226,6 @@ namespace PolygonEditor
         {
             polygon.selectedVertex = null;
 
-            // Check for vertex selection first
             for (int i = 0; i < polygon.vertices.Count; i++)
             {
                 if (Math.Sqrt(Math.Pow(polygon.vertices[i].X - mousePosition.X, 2) + Math.Pow(polygon.vertices[i].Y - mousePosition.Y, 2)) < 10)
@@ -237,13 +233,12 @@ namespace PolygonEditor
                     polygon.selectedVertex = polygon.vertices[i];
                     polygon.selectedEdge = null;
                     polygon.DrawPolygon();
-                    return; // Exit early if a vertex is selected
+                    return; 
                 }
             }
 
             polygon.selectedEdge = null;
 
-            // Loop through the existing edge list to select the edge
             foreach (var edge in polygon.edges)
             {
                 if (edge.isBezier)
@@ -255,12 +250,12 @@ namespace PolygonEditor
                         return;
                     }
                 }
-                // Check if the click is near the edge
+                
                 else if (Algorithm.IsPointNearLine(edge.Start, edge.End, mousePosition))
                 {
-                    polygon.selectedEdge = edge;  // Select the existing edge from the list
+                    polygon.selectedEdge = edge;  
                     polygon.DrawPolygon();
-                    return; // Exit after selecting the edge
+                    return; 
                 }
             }
         }
@@ -288,12 +283,6 @@ namespace PolygonEditor
                 }
             }
         }
-
-        private void NewPolygon_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
         private void DrawPolygon_Click(object sender, RoutedEventArgs e)
         {
             isDrawingMode = true;
@@ -327,19 +316,15 @@ namespace PolygonEditor
         {
 
             Vertex current = vertex;
-            //bool isAllEdgesPositionConstraint = polygon.edges.All(edge => edge.Constraints is HorizontalEdgeConstraints || edge.Constraints is VerticalEdgeConstraints);
             while (true)
             {
                 var edge = direction(current);
-
                 if (edge == null)
                 {
                     MessageBox.Show("error null edge");
                     return false;
                 }
-
                 var otherEnd = edge.GetOtherEnd(current);
-
                 if (edge.isBezier)
                 {
                     if (current.continuityType.CheckIfContinuityIsSatisfied(vertex,edge) == false)
@@ -348,7 +333,7 @@ namespace PolygonEditor
                     }
                     break;
                 }
-                else // !edge.IsBezier
+                else 
                 {
                     if (edge.Constraints.CheckIfConstraintsAreSatisfied(edge) == false)
                     {
@@ -369,17 +354,15 @@ namespace PolygonEditor
                 }
 
             }
-
             return true;
-
         }
         private bool EnsureConstraints(Vertex vertex)
         {
-            if (!PreserveConstraintsLoop(vertex, v => v.InEdge))
+            if (PreserveConstraintsLoop(vertex, v => v.InEdge) == false)
             {
                 return false;
             }
-            if (!PreserveConstraintsLoop(vertex, v => v.OutEdge))
+            if (PreserveConstraintsLoop(vertex, v => v.OutEdge) == false)
             {
                 return false;
             }
@@ -448,7 +431,6 @@ namespace PolygonEditor
                         edge.ControlPoint2.point = new System.Drawing.Point(edge.ControlPoint2.point.X + (int)offset.X, edge.ControlPoint2.point.Y + (int)offset.Y);
                     }
                 }
-
                 initialMousePosition = currentMousePosition;
                 polygon.DrawPolygon();
             }
@@ -648,11 +630,14 @@ namespace PolygonEditor
                     Edge startEdge = start.GetOtherEdge(polygon.selectedEdge);
                     Edge endEdge = end.GetOtherEdge(polygon.selectedEdge);
                     
-                    // Prompt the user for a distance value
                     string input = Microsoft.VisualBasic.Interaction.InputBox("Enter Distance:", "Set Distance", "0");
 
                     if (float.TryParse(input, out float distance))
                     {
+                        if (distance <= 0 || distance >= 5000)
+                        {
+                            MessageBox.Show("Invalid distance value. Please enter a numeric value between 0 and 5000.");
+                        }
                         if (polygon.selectedEdge != null)
                         {
                             polygon.selectedEdge.Length = distance;

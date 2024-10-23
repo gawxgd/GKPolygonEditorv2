@@ -83,15 +83,7 @@ namespace PolygonEditor.Continuity
                     Debug.WriteLine($"{bezierVertex.point} {nonBezierVertex.point}");
                 nextEdge.ControlPoint1.point = Algorithm.ProjectC1(bezierVertex.point, nonBezierVertex.point);
 
-                //if (prevEdge.Constraints is VerticalEdgeConstraints || prevEdge.Constraints is HorizontalEdgeConstraints)
-                //{
-                //    nextEdge.ControlPoint1.point = Algorithm.ProjectC1(bezierVertex.point, nonBezierVertex.point);
-                //}
-                //else
-                //{
-                //    var newControlPointPosition = Algorithm.CalculateG1(nonBezierVertex, bezierVertex, controlPoint);
-                //    nextEdge.ControlPoint1 = Algorithm.SetVertexDistance(bezierVertex, newControlPointPosition, newDistance);
-                //}
+                
 
                 return true;
             }

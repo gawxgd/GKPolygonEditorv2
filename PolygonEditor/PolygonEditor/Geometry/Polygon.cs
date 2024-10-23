@@ -246,51 +246,43 @@ namespace PolygonEditor.Geometry
         }
         private void DrawConstraintIcon(Vertex start, Vertex end, bool rotateArrow = false)
         {
-            // Calculate the middle point of the line
             double middleX = (start.X + end.X) / 2;
             double middleY = (start.Y + end.Y) / 2;
 
-            // Create the arrow icon image
             Image icon = new Image
             {
-                Width = 40,  // Set the appropriate icon size
+                Width = 40,  
                 Height = 40,
                 Source = new BitmapImage(new Uri("pack://application:,,,/Resources/arrow.png"))
 
             };
 
-            // Apply rotation if needed
             if (rotateArrow)
             {
-                // Rotate the arrow by 90 degrees
                 icon.RenderTransform = new RotateTransform(90);
-                icon.RenderTransformOrigin = new System.Windows.Point(0.5, 0.5);  // Rotate around the center of the icon
+                icon.RenderTransformOrigin = new System.Windows.Point(0.5, 0.5);  
                 Canvas.SetLeft(icon, middleX + 10);
-                Canvas.SetTop(icon, middleY - icon.Height / 2); //
+                Canvas.SetTop(icon, middleY - icon.Height / 2); 
             }
             else
             {
-                // Position the icon below the line (shift down by 10 pixels)
                 Canvas.SetLeft(icon, middleX - icon.Width / 2);
-                Canvas.SetTop(icon, middleY + 10); // 10 pixels below the line
+                Canvas.SetTop(icon, middleY + 10); 
             }
-            // Add the icon to the canvas
+          
             drawingCanvas.Children.Add(icon);
         }
         public Polygon DeepCopy()
         {
-            // Create new lists for the copied vertices and edges
             List<Vertex> newVertices = new List<Vertex>();
             List<Edge> newEdges = new List<Edge>();
 
-            // Create a copy of each vertex
             foreach (var vertex in vertices)
             {
                 var newVertex = new Vertex(vertex.X, vertex.Y);
                 newVertices.Add(newVertex);
             }
 
-            // Create a copy of each edge using the new vertices
             for (int i = 0; i < newVertices.Count; i++)
             {
                 Vertex startVertex = newVertices[i];
@@ -303,7 +295,6 @@ namespace PolygonEditor.Geometry
                 endVertex.InEdge = edge;
             }
 
-            // Create a new Polygon instance with the copied vertices and edges
             Polygon copiedPolygon = new Polygon(new List<System.Drawing.Point>(), drawingCanvas)
             {
                 vertices = newVertices,
@@ -317,23 +308,19 @@ namespace PolygonEditor.Geometry
             var start = edge.Start.point;
             var end = edge.End.point;
 
-            // Calculate the midpoint
             var midX = (start.X + end.X) / 2;
             var midY = (start.Y + end.Y) / 2;
 
-            // Create a TextBlock to display the length
             TextBlock lengthLabel = new TextBlock
             {
-                Text = edge.Length.ToString(),  // Display the length
+                Text = edge.Length.ToString(),  
                 Foreground = Brushes.Black,
                 FontSize = 12
             };
 
-            // Set position of the TextBlock
             Canvas.SetLeft(lengthLabel, midX);
             Canvas.SetTop(lengthLabel, midY);
 
-            // Add the TextBlock to the canvas
             drawingCanvas.Children.Add(lengthLabel);
         }
         

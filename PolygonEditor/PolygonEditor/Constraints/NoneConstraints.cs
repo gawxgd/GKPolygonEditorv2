@@ -11,7 +11,7 @@ namespace PolygonEditor.Constraints
     {
         public override bool CheckIfConstraintsAreSatisfied(Edge edge)
         {
-            return true; // No constraints exist
+            return true; 
         }
 
         public override bool CheckIfEdgeHasConstraints()
@@ -24,10 +24,8 @@ namespace PolygonEditor.Constraints
             return true;
         }
 
-        // No constraints to remove
         public override void RemoveConstraints(Edge edge)
         {
-            // Nothing to remove, no-op
         }
 
         public override string ToString()

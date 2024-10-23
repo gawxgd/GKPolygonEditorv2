@@ -21,7 +21,7 @@ namespace PolygonEditor.Constraints
             }
             else
             {
-                return false; // Constraint is not satisfied
+                return false; 
             }
         }
 
