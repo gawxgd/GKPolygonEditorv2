@@ -466,7 +466,7 @@ namespace PolygonEditor
                 var ev = polygon.movingControlPointEdge.End;
 
                 PolygonEditor.Geometry.Polygon backupPolygon = polygon.DeepCopy();
-                if (sv.continuityType.CheckIfHasContinuity(sv) && polygon.movingContolPoint.Equals(polygon.movingControlPointEdge.ControlPoint1))
+                if ((sv.continuityType.CheckIfHasContinuity(sv) || sv.continuityType is G0continuity) && polygon.movingContolPoint.Equals(polygon.movingControlPointEdge.ControlPoint1))
                 {
                     if(sv.InEdge.isBezier && sv.OutEdge.isBezier)
                     {
@@ -483,7 +483,17 @@ namespace PolygonEditor
                             sv.InEdge.ControlPoint2.point = points.Item2;
                             sv.OutEdge.ControlPoint1.point = points.Item1;
                         }
+                        else if(sv.continuityType is G0continuity)
+                        {
+                            polygon.movingContolPoint.point = drawingPoint;
+                        }
 
+                        polygon.DrawPolygon();
+                        return;
+                    }
+                    if (sv.continuityType is G0continuity)
+                    {
+                        polygon.movingContolPoint.point = drawingPoint;
                         polygon.DrawPolygon();
                         return;
                     }
@@ -531,7 +541,7 @@ namespace PolygonEditor
                     }
 
                 }
-                else if (ev.continuityType.CheckIfHasContinuity(ev))
+                else if (ev.continuityType.CheckIfHasContinuity(ev) || ev.continuityType is G0continuity)
                 {
                     if (ev.InEdge.isBezier && ev.OutEdge.isBezier)
                     {
@@ -549,7 +559,17 @@ namespace PolygonEditor
                             ev.InEdge.ControlPoint2.point = points.Item2;
                             ev.OutEdge.ControlPoint1.point = points.Item1;
                         }
+                        else if (ev.continuityType is G0continuity)
+                        {
+                            polygon.movingContolPoint.point = drawingPoint;
+                        }
 
+                        polygon.DrawPolygon();
+                        return;
+                    }
+                    if(ev.continuityType is G0continuity)
+                    {
+                        polygon.movingContolPoint.point = drawingPoint;
                         polygon.DrawPolygon();
                         return;
                     }
