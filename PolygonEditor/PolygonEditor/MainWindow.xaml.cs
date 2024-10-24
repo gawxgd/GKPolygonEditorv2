@@ -737,6 +737,16 @@ namespace PolygonEditor
             }
             polygon.DrawPolygon();
         }
+
+        private void Help_Click(object sender, RoutedEventArgs e)
+        {
+            string url = "https://github.com/gawxgd/GKPolygonEditorv2/blob/main/README.md";
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = url,
+                UseShellExecute = true 
+            });
+        }
     }
 }
 

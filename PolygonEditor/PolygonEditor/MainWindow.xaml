@@ -24,7 +24,8 @@
             <Button Content="Change line Algorithm" Click="ChangeAlgorithm_Click" Margin="5"/>
             <Button Content="Draw new polygon" Click="DrawPolygon_Click" Margin="5"/>
             <Button Content="Delete selected vertex" Click="RemoveVertex_Click" Margin="5"/>
-            <Button Content="Move polygon" Click="TogglePolygonDragging_Click"/>
+            <Button Content="Move polygon" Click="TogglePolygonDragging_Click" Margin="5"/>
+            <Button Content="Help" Click="Help_Click" Margin="5"/>
         </StackPanel>
     </Grid>
 </Window>
