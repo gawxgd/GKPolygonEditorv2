@@ -630,7 +630,7 @@ namespace PolygonEditor
                     Edge startEdge = start.GetOtherEdge(polygon.selectedEdge);
                     Edge endEdge = end.GetOtherEdge(polygon.selectedEdge);
                     
-                    string input = Microsoft.VisualBasic.Interaction.InputBox("Enter Distance:", "Set Distance", "0");
+                    string input = Microsoft.VisualBasic.Interaction.InputBox("Enter Distance:", "Set Distance", "200");
 
                     if (float.TryParse(input, out float distance))
                     {
