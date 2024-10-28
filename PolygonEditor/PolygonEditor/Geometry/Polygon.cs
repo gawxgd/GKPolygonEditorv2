@@ -31,6 +31,9 @@ namespace PolygonEditor.Geometry
 
         public Vertex? movingContolPoint;
         public Edge? movingControlPointEdge;
+        public bool isAutoConstraint = false;
+        public Edge edgeToAddNewConstraint = null;
+
 
         public bool isCustom = true;
         public Polygon(Canvas canvas)
@@ -182,6 +185,10 @@ namespace PolygonEditor.Geometry
                             break;
                     }
                 }
+                if(edge == edgeToAddNewConstraint && edgeToAddNewConstraint != null)
+                {
+                    DrawConstraintIcon(edge.Start, edge.End);
+                }
             }
         }
         public void Clear()
@@ -241,7 +248,7 @@ namespace PolygonEditor.Geometry
 
             }
         }
-        private void DrawConstraintIcon(Vertex start, Vertex end, bool rotateArrow = false)
+        public void DrawConstraintIcon(Vertex start, Vertex end, bool rotateArrow = false)
         {
             double middleX = (start.X + end.X) / 2;
             double middleY = (start.Y + end.Y) / 2;

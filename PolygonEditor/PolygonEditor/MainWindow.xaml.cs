@@ -30,7 +30,8 @@ namespace PolygonEditor
         private bool isDrawingMode = false;
         private bool isDraggingPolygon = false;
         private System.Windows.Point? initialMousePosition = null;
-
+        private bool isNewHorizontalConstraint = false;
+        private bool isNewVerticalConstraint = false;
 
         private List<System.Drawing.Point> tempPoints = new List<System.Drawing.Point>();
         public MainWindow()
@@ -57,7 +58,32 @@ namespace PolygonEditor
             polygon.vertices[3].continuityType = new C1continuity();
             polygon.DrawPolygon();
         }
+        private void MakeHorizontal(Edge edge)
+        {
+            if (edge != null)
+            {
+                if (edge.Constraints.CheckIfEdgeHasConstraints() == false)
+                {
+                    var start = edge.Start;
+                    var end = edge.End;
+                    Edge startEdge = start.GetOtherEdge(edge);
+                    Edge endEdge = end.GetOtherEdge(edge);
+                   
+                    if (startEdge.Constraints is HorizontalEdgeConstraints || endEdge.Constraints is HorizontalEdgeConstraints)
+                    {
+                        //MessageBox.Show("The neighboring edges already have horizontal constraints.");
+                        return;
+                    }
+                    edge.Constraints = new HorizontalEdgeConstraints();
+                    var vertex = polygon.ChangeVertexPosition(edge.End, new Vertex(edge.End.X, edge.Start.Y));
+                    EnsureConstraints(edge.Start);
 
+                    polygon.DrawPolygon();
+
+                }
+                
+            }
+        }
         private void MakeHorizontal_Click(object sender, RoutedEventArgs e)
         {
             if (polygon.selectedEdge != null)
@@ -91,7 +117,30 @@ namespace PolygonEditor
                     MessageBox.Show($"The edge already have verticalEdgeConstraints ");
             }
         }
+        private void MakeVertical(Edge edge)
+        {
+            if (edge != null)
+            {
+                if (edge.Constraints.CheckIfEdgeHasConstraints() == false)
+                {
+                    var start = edge.Start;
+                    var end = edge.End;
+                    Edge startEdge = start.GetOtherEdge(edge);
+                    Edge endEdge = end.GetOtherEdge(edge);
+                    if (startEdge.Constraints is VerticalEdgeConstraints || endEdge.Constraints is VerticalEdgeConstraints)
+                    {
+                       // MessageBox.Show("The neighboring edges already have horizontal constraints.");
+                        return;
+                    }
+                    edge.Constraints = new VerticalEdgeConstraints();
+                    polygon.ChangeVertexPosition(edge.Start, new Vertex(edge.End.X, edge.Start.Y));
+                    EnsureConstraints(edge.Start);
+                    polygon.DrawPolygon();
 
+                }
+                
+            }
+        }
         private void MakeVertical_Click(object sender, RoutedEventArgs e)
         {
             if (polygon.selectedEdge != null)
@@ -202,10 +251,13 @@ namespace PolygonEditor
         }
         private void Canvas_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
+            
             if (isDraggingPolygon)
             {
                 initialMousePosition = null;
             }
+           
+
         }
         private void drawingMode_MouseRightButtonDown()
         {
@@ -389,6 +441,56 @@ namespace PolygonEditor
             }
             return false;
         }
+        private void AutoConstraint(System.Drawing.Point newPosition)
+        {
+            if (polygon.isAutoConstraint)
+            {
+                var movingEdge = polygon.movingVertex.InEdge;
+                var otherVertex = movingEdge.GetOtherEnd(polygon.movingVertex);
+                var secondMovingEdge = polygon.movingVertex.OutEdge;
+                var secondOtherVertex = secondMovingEdge.GetOtherEnd(polygon.movingVertex);
+                
+                if (Math.Abs(otherVertex.Y - newPosition.Y) < 10)
+                {
+                    if (movingEdge.isBezier)
+                        return;
+                    isNewHorizontalConstraint = true;
+                    isNewVerticalConstraint = false;
+                    polygon.edgeToAddNewConstraint = movingEdge;
+                }
+                else if (Math.Abs(secondOtherVertex.Y - newPosition.Y) < 10)
+                {
+                    if (secondMovingEdge.isBezier)
+                        return;
+                    isNewHorizontalConstraint = true;
+                    isNewVerticalConstraint = false;
+                    polygon.edgeToAddNewConstraint = secondMovingEdge;
+                }
+                else if (Math.Abs(otherVertex.X - newPosition.X) < 10)
+                {
+                    if (movingEdge.isBezier)
+                        return;
+                    isNewVerticalConstraint = true;
+                    isNewHorizontalConstraint = false;
+                    polygon.edgeToAddNewConstraint = movingEdge;
+                }
+                else if (Math.Abs(secondOtherVertex.X - newPosition.X) < 10)
+                {
+                    if (secondMovingEdge.isBezier)
+                        return;
+                    isNewVerticalConstraint = true;
+                    isNewHorizontalConstraint = false;
+                    polygon.edgeToAddNewConstraint = secondMovingEdge;
+                }
+                else
+                {
+                    isNewHorizontalConstraint = false;
+                    isNewVerticalConstraint = false;
+                    polygon.edgeToAddNewConstraint = null;
+                }
+            }
+        }
+
         private bool MoveVertex(System.Drawing.Point newPosition)
         {
             if (polygon.movingVertex == null)
@@ -398,21 +500,27 @@ namespace PolygonEditor
             if (polygon.edges.All(edge => edge.Constraints.CheckIfEdgeHasConstraints() == false) && polygon.vertices.All(vertex => vertex.continuityType.CheckIfHasContinuity(vertex) == false))
             {   // only if we want the control point to move to save the edge curve
                 //Algorithm.ChangeControlPointCositionWithoutContinuity(polygon, newPosition);
+                AutoConstraint(newPosition);
+
                 var ver = polygon.ChangeVertexPosition(polygon.movingVertex, new Vertex(newPosition));
                 if (ver != null)
                 {
                     polygon.movingVertex = ver;
                 }
 
+                
                 polygon.DrawPolygon();
                 return true;
             }
+            AutoConstraint(newPosition);
+
             //if(polygon.vertices.All(vertex => vertex.continuityType.CheckIfHasContinuity(vertex) == false))
             //{
             //    // only if we want the control point to move to save the edge curve
             //    //Algorithm.ChangeControlPointCositionWithoutContinuity(polygon, newPosition);
             //}
             MoveVertexWithEdgeConstraints(newPosition);
+            
             polygon.DrawPolygon();
             return true;
         }
@@ -445,6 +553,25 @@ namespace PolygonEditor
                 System.Drawing.Point drawingPoint = new System.Drawing.Point((int)nPosition.X, (int)nPosition.Y);
 
                 MoveVertex(drawingPoint);
+                if (isNewHorizontalConstraint)
+                {
+                    isNewHorizontalConstraint = false;
+                    if (polygon.edgeToAddNewConstraint != null)
+                    {
+                        MakeHorizontal(polygon.edgeToAddNewConstraint);
+                        polygon.edgeToAddNewConstraint = null;
+                    }
+                }
+                if (isNewVerticalConstraint)
+                {
+                    isNewVerticalConstraint = false;
+                    if (polygon.edgeToAddNewConstraint != null)
+                    {
+                        MakeVertical(polygon.edgeToAddNewConstraint);
+                        polygon.edgeToAddNewConstraint = null;
+
+                    }
+                }
 
                 polygon.DrawPolygon();
             }
@@ -622,8 +749,10 @@ namespace PolygonEditor
                 {
                     polygon.movingContolPoint.point = drawingPoint;
                 }
+
                 polygon.DrawPolygon();
             }
+
         }
         private void SetDistance_Click(object sender, RoutedEventArgs e)
         {
@@ -779,6 +908,20 @@ namespace PolygonEditor
                 polygon.LoadPolygonFromFile(openFileDialog.FileName);
                 polygon.DrawPolygon();
                 // Redraw canvas or update UI as needed
+            }
+        }
+
+        private void EnableAuto_Click(object sender, RoutedEventArgs e)
+        {
+            polygon.isAutoConstraint = !polygon.isAutoConstraint;
+            var but = sender as Button;
+            if(polygon.isAutoConstraint)
+            {
+                but.Content = "enabled auto constraints";
+            }
+            else
+            {
+                but.Content = "disabled auto constraints";
             }
         }
     }
