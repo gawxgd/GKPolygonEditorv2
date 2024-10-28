@@ -315,6 +315,26 @@ namespace PolygonEditor
             if (current.continuityType.CheckIfContinuityIsSatisfied(vertex, edge) == false)
                 current.continuityType.PreserveContinuity(current, polygon);
         }
+        private (Vertex? v, bool b) CorrectRegular(Vertex vertex, Vertex current, Edge edge)
+        {
+            var otherEnd = edge.GetOtherEnd(current);
+            if (edge.Constraints.CheckIfConstraintsAreSatisfied(edge) == false)
+            {
+                if (otherEnd.Equals(vertex))
+                    return (null, false);
+
+                edge.Constraints.PreserveConstraint(edge, current, polygon);
+                return (otherEnd, false);
+            }
+            else if (edge.CheckIfHasBezierSegmentNeighbor(otherEnd))
+            {
+                return (otherEnd, false);
+            }
+            else
+            {
+                return (null, true);
+            }
+        }
         private bool PreserveConstraintsLoop(Vertex vertex, Func<Vertex, Edge?> direction)
         {
 
@@ -332,22 +352,14 @@ namespace PolygonEditor
                     CorrectBezier(vertex, current, edge);
                     return true;
                 }
-                else 
+                else
                 {
-                    var otherEnd = edge.GetOtherEnd(current);
-
-                    if (edge.Constraints.CheckIfConstraintsAreSatisfied(edge) == false)
-                    {
-                        if (otherEnd.Equals(vertex)) 
-                            return false;
-
-                        edge.Constraints.PreserveConstraint(edge, current, polygon);
-                        current = otherEnd;
-                    }
-                    else if (edge.CheckIfHasBezierSegmentNeighbor(otherEnd))
-                        current = otherEnd;
+                    var res = CorrectRegular(vertex, current, edge);
+                    if (res.v != null)
+                        current = res.v;
                     else
-                        return true;
+                        return res.b;
+
                 }
 
             }
