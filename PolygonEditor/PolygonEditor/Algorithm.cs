@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -18,6 +19,8 @@ namespace PolygonEditor
     {
         public static void DrawBresenhamLine(Vertex start, Vertex end, Brush color, Canvas drawingCanvas)
         {
+            // wikipedia implentation of Bresenham Algorithm
+            // https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
             if (start.point == end.point)
             {
                 return;
@@ -69,33 +72,86 @@ namespace PolygonEditor
             edge.ControlPoint1.DrawVertex(edge.ControlPoint1, Brushes.Blue, drawingCanvas, 10);
             edge.ControlPoint2.DrawVertex(edge.ControlPoint2, Brushes.Blue, drawingCanvas, 10);
         }
+        //private static void DrawBezierCurve(Vertex p0, Vertex p1, Vertex p2, Vertex p3, Brush color, Canvas drawingCanvas)
+        //{
+        //    Vertex a0 = p0;
+        //    Vertex a1 = new Vertex(3 * (p1.X - p0.X), 3 * (p1.Y - p0.Y));
+        //    Vertex a2 = new Vertex(3 * (p2.X - 2 * p1.X + p0.X), 3 * (p2.Y - 2 * p1.Y + p0.Y));
+        //    Vertex a3 = new Vertex(p3.X - 3 * p2.X + 3 * p1.X - p0.X, p3.Y - 3 * p2.Y + 3 * p1.Y - p0.Y);
+
+        //    double length = CalculateDistance(p0, p1) + CalculateDistance(p1, p2) + CalculateDistance(p2, p3);
+        //    int minSteps = 20;
+        //    int steps = minSteps + (int)(length * 2);
+
+        //    for (int i = 0; i <= steps; i++)
+        //    {
+        //        double t = (double)i / steps;
+
+        //        double x = a3.X * Math.Pow(t, 3) + a2.X * Math.Pow(t, 2) + a1.X * t + a0.X;
+        //        double y = a3.Y * Math.Pow(t, 3) + a2.Y * Math.Pow(t, 2) + a1.Y * t + a0.Y;
+
+        //        var pixel = new System.Windows.Shapes.Rectangle { Width = 1, Height = 1, Fill = color };
+        //        Canvas.SetLeft(pixel, x);
+        //        Canvas.SetTop(pixel, y);
+        //        drawingCanvas.Children.Add(pixel);
+        //    }
+        //}
         private static void DrawBezierCurve(Vertex p0, Vertex p1, Vertex p2, Vertex p3, Brush color, Canvas drawingCanvas)
         {
-            double length = CalculateDistance(p0, p1) + CalculateDistance(p1, p2) + CalculateDistance(p2, p3);
-
-            int minSteps = 20;      
-
-            int steps = minSteps + (int)(length * 2);
-
-            for (int i = 0; i < steps; i++)
+            var list = GetBezierPointsList(p0, p1, p2, p3);
+            for (int i = 0; i < list.Count - 1; i++)
             {
-                double t = (double)i / steps;
-
-                double x = Math.Pow(1 - t, 3) * p0.X +
-                           3 * Math.Pow(1 - t, 2) * t * p1.X +
-                           3 * (1 - t) * Math.Pow(t, 2) * p2.X +
-                           Math.Pow(t, 3) * p3.X;
-
-                double y = Math.Pow(1 - t, 3) * p0.Y +
-                           3 * Math.Pow(1 - t, 2) * t * p1.Y +
-                           3 * (1 - t) * Math.Pow(t, 2) * p2.Y +
-                           Math.Pow(t, 3) * p3.Y;
-
-                var pixel = new System.Windows.Shapes.Rectangle { Width = 1, Height = 1, Fill = color };
-                Canvas.SetLeft(pixel, x);
-                Canvas.SetTop(pixel, y);
-                drawingCanvas.Children.Add(pixel);
+                DrawBresenhamLine(new Vertex(list[i]),new Vertex( list[i+1]), color, drawingCanvas);
             }
+        }
+        private static List<System.Drawing.Point> GetBezierPointsList(Vertex p0, Vertex p1, Vertex p2, Vertex p3)
+        {
+            double length = 20 + 2 * (CalculateDistance(p3, p2) + CalculateDistance(p2, p1) + CalculateDistance(p1, p0));
+            double step = 1 / length;
+
+            List<System.Drawing.Point> pointsList = new List<System.Drawing.Point>();
+            (double X, double Y)[] a = new (double X, double Y)[4];
+            a[0].X = p0.X;
+            a[0].Y = p0.Y;
+            a[1].X = 3 * (p1.X - p0.X);
+            a[1].Y = 3 * (p1.Y - p0.Y);
+            a[2].X = 3 * (p2.X - 2 * p1.X + p0.X);
+            a[2].Y = 3 * (p2.Y - 2 * p1.Y + p0.Y);
+            a[3].X = p3.X - 3 * (p2.X - p1.X) - p0.X;
+            a[3].Y = p3.Y - 3 * (p2.Y - p1.Y) - p0.Y;
+
+            double t = step;
+
+            (double X, double Y)[] prev = new (double X, double Y)[4];
+            prev[0].X = a[0].X;
+            prev[0].Y = a[0].Y;
+            prev[1].X = step * (a[1].X + step * (a[2].X + step * a[3].X));
+            prev[1].Y = step * (a[1].Y + step * (a[2].Y + step * a[3].Y));
+            prev[2].X = step * step * 2 * (a[2].X + step * 3 * a[3].X);
+            prev[2].Y = step * step * 2 * (a[2].Y + step * 3 * a[3].Y);
+            prev[3].X = 6 * step * step * step * a[3].X;
+            prev[3].Y = 6 * step * step * step * a[3].Y;
+
+            pointsList.Add(new System.Drawing.Point((int)prev[0].X, (int)prev[0].Y));
+
+            while (t < 1)
+            {
+                prev[0].X += prev[1].X;
+                prev[0].Y += prev[1].Y;
+
+                prev[1].X += prev[2].X;
+                prev[1].Y += prev[2].Y;
+
+                prev[2].X += prev[3].X;
+                prev[2].Y += prev[3].Y;
+
+                pointsList.Add(new System.Drawing.Point((int)prev[0].X, (int)prev[0].Y));
+
+                t += step;
+            }
+
+            pointsList.Add(new System.Drawing.Point(p3.X, p3.Y));
+            return pointsList;
         }
         public static bool IsPointNearLine(Vertex start, Vertex end, System.Windows.Point point, double threshold = 5)
         {

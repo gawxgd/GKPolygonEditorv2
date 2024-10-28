@@ -310,8 +310,11 @@ namespace PolygonEditor
             }
             MessageBox.Show(isDraggingPolygon ? "Polygon dragging enabled" : "Polygon dragging disabled");
         }
-
-        
+        private void CorrectBezier(Vertex vertex, Vertex current, Edge edge)
+        {
+            if (current.continuityType.CheckIfContinuityIsSatisfied(vertex, edge) == false)
+                current.continuityType.PreserveContinuity(current, polygon);
+        }
         private bool PreserveConstraintsLoop(Vertex vertex, Func<Vertex, Edge?> direction)
         {
 
@@ -324,17 +327,15 @@ namespace PolygonEditor
                     MessageBox.Show("error null edge");
                     return false;
                 }
-                var otherEnd = edge.GetOtherEnd(current);
                 if (edge.isBezier)
                 {
-                    if (current.continuityType.CheckIfContinuityIsSatisfied(vertex,edge) == false)
-                    {
-                        current.continuityType.PreserveContinuity(current,polygon);
-                    }
-                    break;
+                    CorrectBezier(vertex, current, edge);
+                    return true;
                 }
                 else 
                 {
+                    var otherEnd = edge.GetOtherEnd(current);
+
                     if (edge.Constraints.CheckIfConstraintsAreSatisfied(edge) == false)
                     {
                         if (otherEnd.Equals(vertex)) 
@@ -344,28 +345,19 @@ namespace PolygonEditor
                         current = otherEnd;
                     }
                     else if (edge.CheckIfHasBezierSegmentNeighbor(otherEnd))
-                    {
                         current = otherEnd;
-                    }
                     else
-                    {
-                        break;
-                    }
+                        return true;
                 }
 
             }
-            return true;
         }
         private bool EnsureConstraints(Vertex vertex)
         {
             if (PreserveConstraintsLoop(vertex, v => v.InEdge) == false)
-            {
                 return false;
-            }
             if (PreserveConstraintsLoop(vertex, v => v.OutEdge) == false)
-            {
                 return false;
-            }
             return true;
         }
         private bool MoveVertexWithEdgeConstraints(System.Drawing.Point nPosition)

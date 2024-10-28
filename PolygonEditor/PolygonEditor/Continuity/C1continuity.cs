@@ -82,8 +82,16 @@ namespace PolygonEditor.Continuity
                 if (newDistance == 0)
                     Debug.WriteLine($"{bezierVertex.point} {nonBezierVertex.point}");
                 nextEdge.ControlPoint1.point = Algorithm.ProjectC1(bezierVertex.point, nonBezierVertex.point);
+                // gdyby krzywo się przesuwał
+                if (prevEdge.Constraints is HorizontalEdgeConstraints)
+                {
+                    nextEdge.ControlPoint1.point = new System.Drawing.Point(nextEdge.ControlPoint1.X, bezierVertex.Y);
+                }
+                else if (prevEdge.Constraints is VerticalEdgeConstraints)
+                {
+                    nextEdge.ControlPoint1.point = new System.Drawing.Point(bezierVertex.X, nextEdge.ControlPoint1.Y);
+                }
 
-                
 
                 return true;
             }
@@ -96,7 +104,15 @@ namespace PolygonEditor.Continuity
                 double bezierToNonBezierDistance = Algorithm.CalculateDistance(bezierVertex, nonBezierVertex);
                 double newDistance = bezierToNonBezierDistance / 3;
                 prevEdge.ControlPoint2.point = Algorithm.ProjectC1(bezierVertex.point, nonBezierVertex.point);
-
+                // gdyby krzywo się przesuwał
+                if (nextEdge.Constraints is HorizontalEdgeConstraints)
+                {
+                    prevEdge.ControlPoint2.point = new System.Drawing.Point(prevEdge.ControlPoint2.X, bezierVertex.Y);
+                }
+                else if(nextEdge.Constraints is VerticalEdgeConstraints)
+                {
+                    prevEdge.ControlPoint2.point = new System.Drawing.Point(bezierVertex.X, prevEdge.ControlPoint2.Y);
+                }
                 return true;
 
             }
