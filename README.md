@@ -51,7 +51,10 @@ W celu nadania ciągłości wierzchołkowi należy upewnić się że należy do 
 2. G1
 3. C1
 
-
+## Algorytm relacji
+Algorytm poprawiania relacji polega na przechodzeniu po kolejnych wierzchołkach i krawędziach aż do wrócenia do początkowego wierzchołka (ten którego 
+pozycje zmieniliśmy). W czasie przechodzenia sprawdzamy czy spełnione są ograniczenia jeżeli nie poprawiamy je. W przypadku kiedy wszystkie ograniczenia
+uda się zachować nie powinniśmy wrócić do początkowego wierzchołka, jeżeli wrócimy to powtarzamy pętle tym razem w drugim kierunku. Analogicznie sprawdzay czy się udało zachować ograniczenia jeżeli nie ustawiany jest wielokąt bez ograniczeń.
 
   
  
