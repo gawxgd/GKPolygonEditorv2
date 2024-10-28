@@ -110,42 +110,40 @@ namespace PolygonEditor
             double step = 1 / length;
 
             List<System.Drawing.Point> pointsList = new List<System.Drawing.Point>();
-            (double X, double Y)[] a = new (double X, double Y)[4];
-            a[0].X = p0.X;
-            a[0].Y = p0.Y;
-            a[1].X = 3 * (p1.X - p0.X);
-            a[1].Y = 3 * (p1.Y - p0.Y);
-            a[2].X = 3 * (p2.X - 2 * p1.X + p0.X);
-            a[2].Y = 3 * (p2.Y - 2 * p1.Y + p0.Y);
-            a[3].X = p3.X - 3 * (p2.X - p1.X) - p0.X;
-            a[3].Y = p3.Y - 3 * (p2.Y - p1.Y) - p0.Y;
-
+            
+            System.Windows.Point[] A =
+            [
+                new System.Windows.Point(p0.X, p0.Y),
+                new System.Windows.Point(3 * (p1.X - p0.X), 3 * (p1.Y - p0.Y)),
+                new System.Windows.Point(3 * (p2.X - 2 * p1.X + p0.X), 3 * (p2.Y - 2 * p1.Y + p0.Y)),
+                new System.Windows.Point(p3.X - 3 * (p2.X - p1.X) - p0.X, p3.Y - 3 * (p2.Y - p1.Y) - p0.Y),
+            ];
             double t = step;
 
-            (double X, double Y)[] prev = new (double X, double Y)[4];
-            prev[0].X = a[0].X;
-            prev[0].Y = a[0].Y;
-            prev[1].X = step * (a[1].X + step * (a[2].X + step * a[3].X));
-            prev[1].Y = step * (a[1].Y + step * (a[2].Y + step * a[3].Y));
-            prev[2].X = step * step * 2 * (a[2].X + step * 3 * a[3].X);
-            prev[2].Y = step * step * 2 * (a[2].Y + step * 3 * a[3].Y);
-            prev[3].X = 6 * step * step * step * a[3].X;
-            prev[3].Y = 6 * step * step * step * a[3].Y;
-
-            pointsList.Add(new System.Drawing.Point((int)prev[0].X, (int)prev[0].Y));
+            System.Windows.Point[] tab =
+            [
+                new System.Windows.Point(A[0].X, A[0].Y),
+                new System.Windows.Point(step * (A[1].X + step * (A[2].X + step * A[3].X)),
+                                                  step * (A[1].Y + step * (A[2].Y + step * A[3].Y))),
+                new System.Windows.Point(Math.Pow(step, 2) * 2 * (A[2].X + step * 3 * A[3].X),
+                                                  Math.Pow(step, 2) * 2 * (A[2].Y + step * 3 * A[3].Y)),
+                new System.Windows.Point(6 * Math.Pow(step, 3) * A[3].X,
+                                                  6 * Math.Pow(step, 3) * A[3].Y),
+            ];
+            pointsList.Add(new System.Drawing.Point((int)tab[0].X, (int)tab[0].Y));
 
             while (t < 1)
             {
-                prev[0].X += prev[1].X;
-                prev[0].Y += prev[1].Y;
+                tab[0].X += tab[1].X;
+                tab[0].Y += tab[1].Y;
 
-                prev[1].X += prev[2].X;
-                prev[1].Y += prev[2].Y;
+                tab[1].X += tab[2].X;
+                tab[1].Y += tab[2].Y;
 
-                prev[2].X += prev[3].X;
-                prev[2].Y += prev[3].Y;
+                tab[2].X += tab[3].X;
+                tab[2].Y += tab[3].Y;
 
-                pointsList.Add(new System.Drawing.Point((int)prev[0].X, (int)prev[0].Y));
+                pointsList.Add(new System.Drawing.Point((int)tab[0].X, (int)tab[0].Y));
 
                 t += step;
             }
