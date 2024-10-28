@@ -15,6 +15,7 @@ using System.Diagnostics;
 using System.Windows.Shell;
 using PolygonEditor.Continuity;
 using Microsoft.Win32;
+using System.IO;
 
 namespace PolygonEditor
 {
@@ -59,7 +60,7 @@ namespace PolygonEditor
 
         private void MakeHorizontal_Click(object sender, RoutedEventArgs e)
         {
-            if(polygon.selectedEdge != null)
+            if (polygon.selectedEdge != null)
             {
                 if (polygon.selectedEdge.Constraints.CheckIfEdgeHasConstraints() == false)
                 {
@@ -90,7 +91,7 @@ namespace PolygonEditor
                     MessageBox.Show($"The edge already have verticalEdgeConstraints ");
             }
         }
-        
+
         private void MakeVertical_Click(object sender, RoutedEventArgs e)
         {
             if (polygon.selectedEdge != null)
@@ -126,7 +127,7 @@ namespace PolygonEditor
 
         private void RemoveConstraint_Click(object sender, RoutedEventArgs e)
         {
-            if(polygon.selectedEdge != null)
+            if (polygon.selectedEdge != null)
             {
                 polygon.selectedEdge.Constraints.RemoveConstraints(polygon.selectedEdge);
                 polygon.DrawPolygon();
@@ -157,10 +158,10 @@ namespace PolygonEditor
                 {
                     polygon.movingVertex = polygon.vertices[i];
                     polygon.DrawPolygon();
-                    return; 
+                    return;
                 }
             }
-            foreach(Edge e in polygon.edges)
+            foreach (Edge e in polygon.edges)
             {
                 if (e.ControlPoint1 != null && e.ControlPoint2 != null)
                 {
@@ -169,14 +170,14 @@ namespace PolygonEditor
                         polygon.movingContolPoint = e.ControlPoint1;
                         polygon.movingControlPointEdge = e;
                         polygon.DrawPolygon();
-                        return; 
+                        return;
                     }
                     else if (Algorithm.CalculateDistance(e.ControlPoint2, mousePosition) < 10)
                     {
                         polygon.movingContolPoint = e.ControlPoint2;
                         polygon.movingControlPointEdge = e;
                         polygon.DrawPolygon();
-                        return; 
+                        return;
                     }
                 }
             }
@@ -190,7 +191,7 @@ namespace PolygonEditor
             {
                 drawingMode_MouseLeftButtonDown(drawingPoint);
             }
-            else if (isDraggingPolygon) 
+            else if (isDraggingPolygon)
             {
                 initialMousePosition = mousePosition;
             }
@@ -233,7 +234,7 @@ namespace PolygonEditor
                     polygon.selectedVertex = polygon.vertices[i];
                     polygon.selectedEdge = null;
                     polygon.DrawPolygon();
-                    return; 
+                    return;
                 }
             }
 
@@ -250,12 +251,12 @@ namespace PolygonEditor
                         return;
                     }
                 }
-                
+
                 else if (Algorithm.IsPointNearLine(edge.Start, edge.End, mousePosition))
                 {
-                    polygon.selectedEdge = edge;  
+                    polygon.selectedEdge = edge;
                     polygon.DrawPolygon();
-                    return; 
+                    return;
                 }
             }
         }
@@ -269,7 +270,7 @@ namespace PolygonEditor
             {
                 System.Windows.Point mousePosition = e.GetPosition(DrawingCanvas);
                 normal_MouseRightButtonDown(mousePosition);
-                if(polygon.selectedVertex != null)
+                if (polygon.selectedVertex != null)
                 {
                     ContextMenu vertexMenu = (ContextMenu)this.Resources["VertexContextMenu"];
                     vertexMenu.PlacementTarget = DrawingCanvas;
@@ -398,11 +399,11 @@ namespace PolygonEditor
             {   // only if we want the control point to move to save the edge curve
                 //Algorithm.ChangeControlPointCositionWithoutContinuity(polygon, newPosition);
                 var ver = polygon.ChangeVertexPosition(polygon.movingVertex, new Vertex(newPosition));
-                if(ver != null)
+                if (ver != null)
                 {
-                    polygon.movingVertex = ver; 
+                    polygon.movingVertex = ver;
                 }
-               
+
                 polygon.DrawPolygon();
                 return true;
             }
@@ -414,7 +415,7 @@ namespace PolygonEditor
             MoveVertexWithEdgeConstraints(newPosition);
             polygon.DrawPolygon();
             return true;
-        }    
+        }
         private void Canvas_MouseMove(object sender, MouseEventArgs e)
         {
             if (isDrawingMode)
@@ -457,7 +458,7 @@ namespace PolygonEditor
                 PolygonEditor.Geometry.Polygon backupPolygon = polygon.DeepCopy();
                 if ((sv.continuityType.CheckIfHasContinuity(sv) || sv.continuityType is G0continuity) && polygon.movingContolPoint.Equals(polygon.movingControlPointEdge.ControlPoint1))
                 {
-                    if(sv.InEdge.isBezier && sv.OutEdge.isBezier)
+                    if (sv.InEdge.isBezier && sv.OutEdge.isBezier)
                     {
                         polygon.movingContolPoint.point = drawingPoint;
                         if (sv.continuityType is C1continuity)
@@ -466,13 +467,13 @@ namespace PolygonEditor
                             sv.InEdge.ControlPoint2.point = points.Item2;
                             sv.OutEdge.ControlPoint1.point = points.Item1;
                         }
-                        else if(sv.continuityType is G1continuity)
+                        else if (sv.continuityType is G1continuity)
                         {
                             var points = Algorithm.MoveControlPointBetweenBezierEdgesG1control2(polygon.movingContolPoint, sv.InEdge, sv.OutEdge);
                             sv.InEdge.ControlPoint2.point = points.Item2;
                             sv.OutEdge.ControlPoint1.point = points.Item1;
                         }
-                        else if(sv.continuityType is G0continuity)
+                        else if (sv.continuityType is G0continuity)
                         {
                             polygon.movingContolPoint.point = drawingPoint;
                         }
@@ -498,15 +499,15 @@ namespace PolygonEditor
                         {
                             polygon.ChangeVertexPosition(polygon.movingControlPointEdge.Start, new Vertex(drawingPoint.X, sv.Y));
                         }
-                        var newPost = Algorithm.ProjectVertexControl(new Vertex(drawingPoint), 
+                        var newPost = Algorithm.ProjectVertexControl(new Vertex(drawingPoint),
                             polygon.movingControlPointEdge.Start, polygon.movingControlPointEdge.Start.InEdge.Start);
                         polygon.ChangeVertexPosition(polygon.movingControlPointEdge.Start.InEdge.Start, newPost);
 
-                       
+
                         PreserveConstraintsLoop(polygon.movingControlPointEdge.Start, v => v.InEdge);
                         PreserveConstraintsLoop(polygon.movingControlPointEdge.Start.InEdge.Start, v => v.InEdge);
-                        
-                        
+
+
                     }
                     else
                     {
@@ -517,7 +518,7 @@ namespace PolygonEditor
                             Algorithm.CalculateG1(polygon.movingContolPoint,
                             polygon.movingControlPointEdge.Start,
                             polygon.movingControlPointEdge.Start.InEdge.Start));
-                          
+
                         }
                         else if (sv.continuityType is C1continuity)
                         {
@@ -548,7 +549,7 @@ namespace PolygonEditor
                             ev.InEdge.ControlPoint2.point = points.Item2;
                             ev.OutEdge.ControlPoint1.point = points.Item1;
                         }
-                        else if(ev.continuityType is G1continuity)
+                        else if (ev.continuityType is G1continuity)
                         {
                             polygon.movingContolPoint.point = drawingPoint;
                             var points = Algorithm.MoveControlPointBetweenBezierEdgesG1control1(polygon.movingContolPoint, ev.InEdge, ev.OutEdge);
@@ -563,7 +564,7 @@ namespace PolygonEditor
                         polygon.DrawPolygon();
                         return;
                     }
-                    if(ev.continuityType is G0continuity)
+                    if (ev.continuityType is G0continuity)
                     {
                         polygon.movingContolPoint.point = drawingPoint;
                         polygon.DrawPolygon();
@@ -584,10 +585,10 @@ namespace PolygonEditor
                         var newPost = Algorithm.ProjectVertexControl(new Vertex(drawingPoint),
                             polygon.movingControlPointEdge.End, polygon.movingControlPointEdge.End.OutEdge.End);
                         polygon.ChangeVertexPosition(polygon.movingControlPointEdge.End.OutEdge.End, newPost);
-                        
+
                         PreserveConstraintsLoop(polygon.movingControlPointEdge.End, v => v.OutEdge);
                         PreserveConstraintsLoop(polygon.movingControlPointEdge.End.OutEdge.End, v => v.OutEdge);
-                        
+
                     }
                     else
                     {
@@ -598,7 +599,8 @@ namespace PolygonEditor
                                  Algorithm.CalculateG1(polygon.movingContolPoint,
                                  polygon.movingControlPointEdge.End,
                                  polygon.movingControlPointEdge.End.OutEdge.End));
-                        }else if(ev.continuityType is C1continuity)
+                        }
+                        else if (ev.continuityType is C1continuity)
                         {
                             if (polygon.movingControlPointEdge.End.OutEdge.Constraints is DistanceConstraint)
                             {
@@ -633,7 +635,7 @@ namespace PolygonEditor
                     var end = polygon.selectedEdge.End;
                     Edge startEdge = start.GetOtherEdge(polygon.selectedEdge);
                     Edge endEdge = end.GetOtherEdge(polygon.selectedEdge);
-                    
+
                     string input = Microsoft.VisualBasic.Interaction.InputBox("Enter Distance:", "Set Distance", "200");
 
                     if (float.TryParse(input, out float distance))
@@ -660,19 +662,19 @@ namespace PolygonEditor
                 else
                     MessageBox.Show($"The edge already have verticalEdgeConstraints ");
             }
-            
+
         }
 
         private void ChangeBezier_Click(object sender, RoutedEventArgs e)
         {
-            if(polygon.selectedEdge != null)
+            if (polygon.selectedEdge != null)
             {
 
-               if(polygon.selectedEdge.isBezier == false)
+                if (polygon.selectedEdge.isBezier == false)
                 {
                     polygon.selectedEdge.SetBezier(polygon);
                 }
-               else
+                else
                 {
                     polygon.selectedEdge.RemoveBezier();
                     polygon.selectedEdge.Start.DrawVertex(polygon.selectedEdge.Start, Brushes.Black, DrawingCanvas);
@@ -707,7 +709,7 @@ namespace PolygonEditor
                     return;
                 }
                 polygon.selectedVertex.continuityType = new G1continuity();
-                polygon.selectedVertex.continuityType.PreserveContinuity(polygon.selectedVertex,polygon);
+                polygon.selectedVertex.continuityType.PreserveContinuity(polygon.selectedVertex, polygon);
                 polygon.DrawPolygon();
             }
         }
@@ -731,7 +733,7 @@ namespace PolygonEditor
         {
             polygon.isCustom = !polygon.isCustom;
             var button = sender as Button;
-            if(polygon.isCustom)
+            if (polygon.isCustom)
             {
                 button.Content = "Custom Algorithm";
             }
@@ -748,9 +750,39 @@ namespace PolygonEditor
             Process.Start(new ProcessStartInfo
             {
                 FileName = url,
-                UseShellExecute = true 
+                UseShellExecute = true
             });
+        }
+        private void SavePolygon_Click(object sender, RoutedEventArgs e)
+        {
+            var saveFileDialog = new Microsoft.Win32.SaveFileDialog
+            {
+                Filter = "JSON Files (*.json)|*.json|All Files (*.*)|*.*"
+            };
+
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                polygon.SavePolygonToFile(saveFileDialog.FileName);
+            }
+        }
+
+        private void LoadPolygon_Click(object sender, RoutedEventArgs e)
+        {
+            var openFileDialog = new Microsoft.Win32.OpenFileDialog
+            {
+                Filter = "JSON Files (*.json)|*.json|All Files (*.*)|*.*"
+            };
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                polygon = new Geometry.Polygon(DrawingCanvas);
+                polygon.LoadPolygonFromFile(openFileDialog.FileName);
+                polygon.DrawPolygon();
+                // Redraw canvas or update UI as needed
+            }
         }
     }
 }
+
+
 

@@ -1,11 +1,14 @@
 ﻿using PolygonEditor.Constraints;
+using PolygonEditor.Continuity;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -30,6 +33,12 @@ namespace PolygonEditor.Geometry
         public Edge? movingControlPointEdge;
 
         public bool isCustom = true;
+        public Polygon(Canvas canvas)
+        {
+            vertices = new List<Vertex>();
+            edges = new List<Edge>();
+            drawingCanvas = canvas;
+        }
         public Polygon(List<System.Drawing.Point> points, Canvas drawingCanvas)
         {
             this.vertices = new List<Vertex>();
@@ -51,18 +60,6 @@ namespace PolygonEditor.Geometry
                 startVertex.OutEdge = edge;
                 endVertex.InEdge = edge;
             }
-            //foreach(var vertex in vertices)
-            //{
-            //    Debug.WriteLine($"{vertex.point} {vertex.InEdge.Start.point} {vertex.InEdge.End.point} {vertex.OutEdge.Start.point} {vertex.OutEdge.End.point}");
-            //}
-            //foreach (var edge in edges)
-            //{
-            //    Debug.WriteLine($"{edge.Start.point} {edge.End.point}");
-            //}
-            //foreach (var edge in edges)
-            //{
-            //    Debug.WriteLine($"{edge.Start.InEdge.Start.point} {edge.Start.InEdge.End.point}");
-            //}
         }
         public Vertex? ChangeVertexPosition(Vertex oldPosition, Vertex newPosition)
         {
@@ -323,7 +320,96 @@ namespace PolygonEditor.Geometry
 
             drawingCanvas.Children.Add(lengthLabel);
         }
-        
+        public void SavePolygonToFile(string filePath)
+        {
+            var polygonData = new PolygonData
+            {
+                Vertices = vertices.Select(v => new VertexData
+                {
+                    X = v.point.X,
+                    Y = v.point.Y,
+                    ContinuityType = v.continuityType.GetType().Name,
+                    InEdgeIndex = v.InEdge != null ? edges.IndexOf(v.InEdge) : (int?)null,
+                    OutEdgeIndex = v.OutEdge != null ? edges.IndexOf(v.OutEdge) : (int?)null
+                }).ToList(),
+                Edges = edges.Select(e => new EdgeData
+                {
+                    StartIndex = vertices.IndexOf(e.Start),
+                    EndIndex = vertices.IndexOf(e.End),
+                    IsBezier = e.isBezier,
+                    ControlPoint1 = e.ControlPoint1 != null ? new PointData(e.ControlPoint1.X, e.ControlPoint1.Y) : null,
+                    ControlPoint2 = e.ControlPoint2 != null ? new PointData(e.ControlPoint2.X, e.ControlPoint2.Y) : null,
+                    ConstraintType = e.Constraints.GetType().Name
+                }).ToList()
+            };
+
+            string json = JsonSerializer.Serialize(polygonData, new JsonSerializerOptions { WriteIndented = true });
+            File.WriteAllText(filePath, json);
+        }
+
+        public void LoadPolygonFromFile(string filePath)
+        {
+            string json = File.ReadAllText(filePath);
+            var polygonData = JsonSerializer.Deserialize<PolygonData>(json);
+
+            vertices = polygonData.Vertices.Select(v => new Vertex(v.X, v.Y)
+            {
+                continuityType = ContinuityFactory.CreateContinuity(v.ContinuityType)
+            }).ToList();
+
+            edges = polygonData.Edges.Select(e =>
+            {
+                var start = vertices[e.StartIndex];
+                var end = vertices[e.EndIndex];
+                var edge = new Edge(start, end, ConstraintsFactory.CreateConstraint(e.ConstraintType))
+                {
+                    isBezier = e.IsBezier,
+                    ControlPoint1 = e.ControlPoint1 != null ? new Vertex(e.ControlPoint1.X, e.ControlPoint1.Y) : null,
+                    ControlPoint2 = e.ControlPoint2 != null ? new Vertex(e.ControlPoint2.X, e.ControlPoint2.Y) : null
+                };
+                return edge;
+            }).ToList();
+            
+            for (int i = 0; i < vertices.Count; i++)
+            {
+                var vertexData = polygonData.Vertices[i];
+                if (vertexData.InEdgeIndex.HasValue)
+                    vertices[i].InEdge = edges[vertexData.InEdgeIndex.Value];
+                if (vertexData.OutEdgeIndex.HasValue)
+                    vertices[i].OutEdge = edges[vertexData.OutEdgeIndex.Value];
+            }
+        }
+
     }
-   
+    public static class ContinuityFactory
+    {
+        public static VertexContinuity CreateContinuity(string typeName)
+        {
+            return typeName switch
+            {
+                "G1continuity" => new G1continuity(),
+                "G0continuity" => new G0continuity(),
+                "C1continuity" => new C1continuity(),
+                _ => new NoneContinuity()
+            };
+        }
+    }
+
+    public static class ConstraintsFactory
+    {
+        public static EdgeConstraints CreateConstraint(string typeName)
+        {
+            return typeName switch
+            {
+                "HorizontalEdgeConstraints" => new HorizontalEdgeConstraints(),
+                "VerticalEdgeConstraints" => new VerticalEdgeConstraints(),
+                "DistanceConstraint" => new DistanceConstraint(),
+                _ => new NoneConstraints()
+            };
+        }
+    }
+
+
 }
+
+
